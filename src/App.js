@@ -1,21 +1,25 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import { Router, Route, Switch } from "react-router"
+
+import Login from "./components/Login"
+import Register from "./components/Register"
+
+import { createBrowserHistory } from "history"
+
+const history = createBrowserHistory()
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          SecureChat
-        </p>
-        <p>
-          Encrypted channels with unlimited users
-        </p>
-      </header>
-    </div>
-  );
+    return (
+        <Router history = {history}>
+            <Switch>
+                <Route exact path = "/" component = {Login} />
+                <Route exact path = "/login" component = {Login} />
+
+                <Route exact path = "/register" component = {Register} />
+            </Switch>
+        </Router>
+    )
 }
 
-export default App;
+export default App
