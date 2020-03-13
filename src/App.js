@@ -1,6 +1,9 @@
 import React from 'react';
 
+import { Provider } from "react-redux"
 import { Router, Route, Switch } from "react-router"
+
+import store from "./store"
 
 import Login from "./components/Login"
 import Register from "./components/Register"
@@ -11,14 +14,16 @@ const history = createBrowserHistory()
 
 function App() {
     return (
-        <Router history = {history}>
-            <Switch>
-                <Route exact path = "/" component = {Login} />
-                <Route exact path = "/login" component = {Login} />
+        <Provider store = {store}>
+            <Router history = {history}>
+                <Switch>
+                    <Route exact path = "/" component = {Login} />
+                    <Route exact path = "/login" component = {Login} />
 
-                <Route exact path = "/register" component = {Register} />
-            </Switch>
-        </Router>
+                    <Route exact path = "/register" component = {Register} />
+                </Switch>
+            </Router>
+        </Provider>
     )
 }
 
