@@ -5,7 +5,7 @@ import { setUser } from "../actions/userActions"
 
 import { withRouter } from 'react-router'
 
-import { withTheme, useTheme } from "@material-ui/core"
+import { withTheme, useTheme, makeStyles, styled } from "@material-ui/core"
 
 import { TextField, Button, CircularProgress, LinearProgress } from "@material-ui/core"
 
@@ -15,8 +15,34 @@ import axios from "axios"
 
 let interval = null
 
+const useStyles = makeStyles({
+    container: ({ theme }) => ({
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        minHeight: 450,
+
+        backgroundColor: theme.palette.background.default,
+    }),
+    form: {
+        display: "flex",
+        flexDirection: "column",
+        width: "80%",
+        maxWidth: 550,
+    },
+    input: {
+        margin: "10px 0"
+    },
+    primaryText: ({ theme }) => ({
+        color: theme.palette.text.primary
+    })
+})
+
 const Register = props => {
     const theme = useTheme()
+    const styles = useStyles({ theme })
 
     const [generatingKeys, setGenerating] = useState(false)
     const [isOpen, setOpen] = useState(false)
@@ -76,110 +102,160 @@ const Register = props => {
     }
 
     const handleSubmit = _ => {
-
-
         setStatus("Generating RSA keypair locally...")
         setGenerating(true)
 
-        let publicKey = keys.publicKey,
-            privateKey = keys.privateKey
+        const storage = localStorage.getItem("generatedKeys")
+
+        if(!storage || storage.length < 10) {
+            window.crypto.subtle.generateKey({ 
+                name: "RSA-OAEP", 
+                modulusLength: 4096, 
+                publicExponent: new Uint8Array([1, 0, 1]), 
+                hash: "SHA-256" 
+            }, true, ["encrypt", "decrypt"])
+                .then(async keypair => {
+                    console.log(keypair)
+    
+                    const exportedPublic = await crypto.subtle.exportKey("spki", keypair.publicKey)
+                    const exportedPrivate = await crypto.subtle.exportKey("pkcs8", keypair.privateKey)
+
+                    const publicK = spkiToPEM(exportedPublic)
+                    const privateK = toPem(exportedPrivate)
+    
+                    localStorage.setItem("generatedKeys", JSON.stringify({ publicKey: publicK, privateKey: privateK }))
+
+                    handleSignup(publicK, privateK)
+                })
+        }
+        else {
+            const keypair = JSON.parse(localStorage.getItem("generatedKeys"))
+            const publicK = keypair.publicKey
+            const privateK = keypair.privateKey
+
+            handleSignup(publicK, privateK)
+        }
     }
 
-    const handleRegistrationReq = (publicKey, protectedKey) => {
-        setLoading(true)
-        setError("")
-        setStatus("")
-
-        let startTime = new Date().getTime()
+    const initLoadingInterval = _ => {
+        const startTime = new Date().getTime()
         let endTime = new Date()
 
         endTime.setSeconds(endTime.getSeconds() + 7)
-
         endTime = endTime.getTime()
 
         interval = setInterval(_ => {
-            let newTime = new Date().getTime() - startTime
+            const newTime = new Date().getTime() - startTime
 
-            let percentage = newTime * 100 / (endTime - startTime)
+            const percentage = newTime * 100 / (endTime - startTime)
 
             setPercentage(percentage)
         }, 20)
+    }
 
+    const sendSignup = (publicKey, privateKey) => {
         axios.post("https://servicetechlink.com/register", JSON.stringify({
             username: form.username,
             password: form.password,
             publicKey,
-            protectedKey: protectedKey
         }), {
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         })
-            .then(data => {
-                clearInterval(interval)
-                props.setUser(data.data.user, data.data.token, form.password)
-                props.history.push("/messages")
-            })
-            .catch(err => {
-                setLoading(false)
-                clearInterval(interval)
-                setOpen(false)
-                if (err.response) {
-                    setError(err.response.data.message)
-                }
-                else if ((err + "").includes("ECONNREFUSED")) {
-                    setError("You dont have an internet connection or the server is down")
-                }
-            })
+            .then(data => handleSuccess(data, privateKey))
+            .catch(handleError)
+    }
+
+    const handleSignup = (publicKey, privateKey) => {
+        setLoading(true)
+        setError("")
+        setStatus("")
+
+        initLoadingInterval()
+
+        sendSignup(publicKey, privateKey)
+    }
+
+    const handleSuccess = (data, privateKey) => {
+        clearInterval(interval)
+        props.setUser(data.data.user, privateKey, data.data.token, form.password)
+        localStorage.setItem("token", data.data.token)
+
+        props.history.push("/messages")
+    }
+
+    const handleError = err => {
+        setLoading(false)
+        clearInterval(interval)
+        setOpen(false)
+        if (err.response) {
+            setError(err.response.data.message)
+        }
+        else if ((err + "").includes("ECONNREFUSED")) {
+            setError("You dont have an internet connection or the server is down")
+        }
+    }
+
+    const _renderGeneratingBar = _ => {
+        return generatingKeys && <LinearProgress color="primary" />
     }
 
     const _renderProgress = _ => {
-        if(loading) {
-            return <LinearProgress 
-                        variant="determinate" 
-                        value={Math.min(parseInt(percentage), 100)} 
-                        style = {{ marginTop: 5 }}
-                    />
-        }
-        else return <></>
+        return loading && <LinearProgress variant="determinate" value={Math.min(parseInt(percentage), 100)} style={{ marginTop: 5 }} />
+    }
+
+    const _renderStatusText = _ => {
+        return status && !loading && <h5 className={styles.primaryText}>{status}</h5>
+    }
+
+    const _renderSubmittingText = _ => {
+        return loading && <h5 className={styles.primaryText}>Note: Registering and login can take a long time</h5>
+    }
+
+    const _renderErrorText = _ => {
+        return <span style={{ color: "red" }}>{error}</span>
     }
 
     return (
         <>
             <ConfirmComp
+                title="Warning!"
                 text={["You may want to store your password in a password manager or write it down, there is no way to reset your password.",
-                    "Registering may take a long time on slower computers, and the program may become unresponsive for a while"]}
+                    "Registering may take a long time on slower computers, and the program may become unresponsive for a while",
+                    "Registering on this website may result in the loss or theft of your private key, try switching to the desktop app"]}
                 open={isOpen}
                 onCancel={handleCancel}
                 onProceed={handleProceed}
             />
-            <div style={{ ...mainContainerStyle, backgroundColor: theme.palette.background.default }}>
-                <h2 style = {{ color: theme.palette.text.primary }}>Register</h2>
-                <form style={formStyle} onSubmit={handleClick}>
-                    <TextField type="text" name="username" value={form.username} onChange={handleChange} label="Username" />
-                    <TextField style={{ marginTop: 25 }} type="password" name="password" value={form.password} onChange={handleChange} label="Password" />
-                    <TextField style={{ marginTop: 25, marginBottom: 40 }} type="password" name="confirm" value={form.confirm} onChange={handleChange} label="Confirm Password" />
+            <div className={styles.container}>
+                <h1 className={styles.primaryText}>Register</h1>
+                <form className={styles.form} onSubmit={handleClick}>
+                    <TextField className={styles.input} type="text" name="username" value={form.username} onChange={handleChange} label="Username" />
+                    <TextField className={styles.input} type="password" name="password" value={form.password} onChange={handleChange} label="Password" />
+                    <TextField className={styles.input} type="password" name="confirm" value={form.confirm} onChange={handleChange} label="Confirm Password" />
 
-                    <Button variant="contained" color="primary" type="submit" disabled = {loading || generatingKeys}>
-                        {loading ? <CircularProgress size = {17} /> : "Register"}
-                    </Button>
+                    <RegisterButton variant="contained" color="primary" type="submit" disabled={loading || generatingKeys}>
+                        {loading ? <CircularProgress size={17} /> : "Sign up"}
+                    </RegisterButton>
 
-                    { generatingKeys && <LinearProgress color = "primary" /> }
+                    {_renderGeneratingBar()}
+                    {_renderProgress()}
+                    {_renderStatusText()}
+                    {_renderSubmittingText()}
+                    {_renderErrorText()}
 
-                    { _renderProgress() }
-
-                    {status && !loading && <h5 style = {{ color: theme.palette.text.primary }}>{status}</h5>}
-
-                    {loading && <h5 style = {{ color: theme.palette.text.primary }}>Note: Registering and login can take a long time, this is because we are hashing your password with 17 rounds</h5>}
-
-                    <span style={{ color: "red" }}>{error}</span>
-
-                    <h5 style = {{ color: theme.palette.text.primary }}>Already have an account? <Button style={{ fontSize: 12 }} variant="text" color="primary" onClick={_ => props.history.push("/login")}>Log in!</Button></h5>
+                    <h5 className={styles.primaryText}>
+                        Already have an account?
+                        <LoginLink variant="text" color="primary" onClick={_ => props.history.push("/login")}>
+                            Log in!
+                        </LoginLink>
+                    </h5>
                 </form>
             </div>
         </>
-    );
+    )
 }
 
 const mapStateToProps = state => {
@@ -205,4 +281,73 @@ const formStyle = {
     flexDirection: "column",
     width: "80%",
     maxWidth: 550
+}
+
+
+const RegisterButton = styled(Button)({
+    height: 36,
+    marginTop: 30
+})
+
+const LoginLink = styled(Button)({
+    fontSize: 12
+})
+
+function arrayBufferToBase64(arrayBuffer) {
+    var byteArray = new Uint8Array(arrayBuffer);
+    var byteString = '';
+    for(var i=0; i < byteArray.byteLength; i++) {
+        byteString += String.fromCharCode(byteArray[i]);
+    }
+    var b64 = window.btoa(byteString);
+
+    return b64;
+}
+
+function addNewLines(str) {
+    var finalString = '';
+    while(str.length > 0) {
+        finalString += str.substring(0, 64) + '\n';
+        str = str.substring(64);
+    }
+
+    return finalString;
+}
+
+function toPem(privateKey) {
+    var b64 = addNewLines(arrayBufferToBase64(privateKey));
+    var pem = "-----BEGIN PRIVATE KEY-----\n" + b64 + "-----END PRIVATE KEY-----";
+    
+    return pem;
+}
+
+function spkiToPEM(keydata){
+    var keydataS = arrayBufferToString(keydata);
+    var keydataB64 = window.btoa(keydataS);
+    var keydataB64Pem = formatAsPem(keydataB64);
+    return keydataB64Pem;
+}
+
+function arrayBufferToString( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return binary;
+}
+
+
+function formatAsPem(str) {
+    var finalString = '-----BEGIN PUBLIC KEY-----\n';
+
+    while(str.length > 0) {
+        finalString += str.substring(0, 64) + '\n';
+        str = str.substring(64);
+    }
+
+    finalString = finalString + "-----END PUBLIC KEY-----";
+
+    return finalString;
 }

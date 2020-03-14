@@ -1,28 +1,53 @@
-import React from 'react';
-import { Dialog, DialogTitle, Button } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogTitle, Button, Checkbox } from '@material-ui/core';
 
 import { FiX, FiCheck } from 'react-icons/fi'
- 
+
 export default props => {
+    const [checkMarks, setCheckmarks] = useState(new Array(props.text.length).fill(false))
+    const [allTrue, setAllTrue] = useState(false)
 
+    useEffect(_ => {
+        setAllTrue(checkMarks.find(x => x === false) === undefined)
+    }, [checkMarks])
 
-  return (
-    <Dialog open = {props.open}>
-      <DialogTitle style = {{ fontWeight: "800 !important" }}>Warning!</DialogTitle>
+    const handleChange = event => {
+        const copy = checkMarks.slice()
+        const index = parseInt(event.target.name)
 
-      <ul>
-        { 
-          props.text.map((text, i) => 
-            <li key = {i} style = {{ margin: "15px 0" }}>{text}</li>
-          ) 
-        }
-      </ul> 
-      
-      <div style = {{ display: "flex", justifyContent: "flex-end", padding: 10 }}>
-        <Button color = "secondary" variant = "outlined" onClick = {props.onCancel}><FiX color = "red" /> Cancel</Button>
-        <h1 style = {{ width: 15 }}></h1>
-        <Button style = {{ color: "green", borderColor: "green" }} variant = "outlined" onClick = {props.onProceed} ><FiCheck color = "green" /> Proceed</Button>
-      </div>
-    </Dialog>
-  )
+        copy[index] = !copy[index]
+
+        setCheckmarks(copy)
+    }
+
+    return (
+        <Dialog open={props.open}>
+            <DialogTitle style={{ fontWeight: "800 !important" }}>Warning! Check all boxes</DialogTitle>
+
+            <ul>
+                {
+                    props.text.map((text, i) => {
+                        return (
+                            <li key={i} >
+                                <Checkbox 
+                                    checked = {checkMarks[i]} 
+                                    onChange = {handleChange} 
+                                    color = "primary"
+                                    style={{ margin: "15px 0" }} 
+                                    name = {i + ""}
+                                />
+                                {text}
+                            </li>
+                        )
+                    })
+                }
+            </ul>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", padding: 10 }}>
+                <Button color="secondary" variant="outlined" onClick={props.onCancel}><FiX color="red" /> Cancel</Button>
+                <h1 style={{ width: 15 }}></h1>
+                <Button disabled = {!allTrue} color = "primary" variant="contained" onClick={props.onProceed} ><FiCheck color={allTrue ? "white" : "gray"} /> Proceed</Button>
+            </div>
+        </Dialog>
+    )
 }

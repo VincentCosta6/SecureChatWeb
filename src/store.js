@@ -1,20 +1,34 @@
-import { createStore, combineReducers, applyMiddleware, compose } from "redux"
+import { 
+    createStore, 
+    combineReducers, 
+    applyMiddleware, 
+    compose 
+} from "redux"
 import thunk from "redux-thunk"
 
-import channelReducer from "./reducers/channelReducer"
 import userReducer from "./reducers/userReducer"
+import channelReducer from "./reducers/channelReducer"
+import connectionReducer from "./reducers/connectionReducer"
+import socketReducer from "./reducers/socketReducer"
+import themeReducer from "./reducers/themeReducer"
 
 const rootReducer = combineReducers({
-    channel: channelReducer,
     user: userReducer,
+    channels: channelReducer,
+    connection: connectionReducer,
+    theme: themeReducer,
+    websocket: socketReducer
 })
 
 const initialState = {}
 
 const middleware = [thunk]
 
+//const hasWindow = typeof window === "object";
+//const composeEnhancers = (hasWindow && window.__REDUX_DEVTOOLS_EXTENSION__ ) || compose;
+
 const Store = createStore(
-    rootReducer,
+    rootReducer, 
     initialState,
     compose(
         applyMiddleware(...middleware),
