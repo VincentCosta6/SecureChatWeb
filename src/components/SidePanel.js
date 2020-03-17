@@ -1,10 +1,10 @@
-import React, { useEffect, Fragment } from "react"
+import React, { Fragment } from "react"
 
 import { connect } from "react-redux"
 import { withRouter } from "react-router"
 import { withTheme, useTheme } from "@material-ui/core/styles"
 
-import { loadChannels, setActive } from "../actions/channelActions"
+import { setActive } from "../actions/channelActions"
 
 import Channel from "./Channel"
 import CreateChannel from "./CreateChannel"
@@ -32,10 +32,6 @@ const useStyles = makeStyles({
 const SidePanel = props => {
     const theme = useTheme()
     const styles = useStyles({ theme })
-
-    useEffect(_ => {
-        reload()
-    }, [props.connection.serverConnected])
 
     const setActive = (channelIndex) => {
         props.setActive(channelIndex)
@@ -72,11 +68,6 @@ const SidePanel = props => {
         }
     }
 
-    const reload = _ => {
-        if (props.channels.channels.length === 0)
-            props.loadChannels(props.user)
-    }
-
     return (
         <div className = {styles.container}>
             {_renderChannels()}
@@ -94,5 +85,5 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps, { loadChannels, setActive })(withRouter(withTheme(SidePanel)))
+export default connect(mapStateToProps, { setActive })(withRouter(withTheme(SidePanel)))
 

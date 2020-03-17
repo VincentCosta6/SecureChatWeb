@@ -31,7 +31,7 @@ const ChannelView = props => {
 
     const currentChannel = props.channels.channels[props.channels.activeChannel]
     const users = Object.keys(currentChannel.privateKeys).map(key => key)
-    const typers = Object.keys(currentChannel.typers).map(key => currentChannel.typers[key])
+    const typers = Object.keys(currentChannel.typers).map(key => currentChannel.typers[key]).filter(typer => typer.WhoTypingID !== props.user._id)
     let typingText = " "
 
     if(typers.length > 3) {
@@ -168,14 +168,32 @@ const ChannelView = props => {
         
     }
 
+    console.log(typers)
+
     return (
         <div style = {{ flex: 1, display: "flex", flexDirection: "column", height: "100%", backgroundColor: theme.palette.background.default }}>
             <div style = {{ flex: "1 1 auto", display: "flex", flexDirection: "column", overflowY: "auto" }} id = "message-scroll-here">
                 { _renderMessages() }
+                { typers.map(typer => {
+                    return (
+                        <p key = {typer.WhoTypingID}>{typer.WhoTypingUsername} is typing...</p>
+                    )
+                }) }
             </div>
             <Divider />
-            <div style = {{ display: "flex", flexDirection: "column", justifyContent: "center", backgroundColor: theme.palette.background.default, marginTop: 15 }}>
-                <div style = {{ display: "flex", alignItems: "center", backgroundColor: theme.palette.background.default, margin: "0 15px" }}>
+            <div style = {{ display: "flex", flexDirection: "column", justifyContent: "center", backgroundColor: theme.palette.background.default, marginTop: 5 }}>
+                <div style = {{ display: "flex", alignItems: "center", backgroundColor: theme.palette.background.default, margin: "5px" }}>
+                    { 
+                        /*<button>
+                            <FiPaperclip size = {16} />
+                            <input
+                                type="file"
+                                style={{ display: "none" }}
+                                ref = {fileRef}
+                                onChange = {fileChanged}
+                            />
+                        </button>*/
+                    }
                     <TextField 
                         style = {{ flex: 1, padding: 0, borderRadius: "4px 0 0 4px" }} 
                         label = {"Message " + currentChannel.Name}
@@ -185,23 +203,8 @@ const ChannelView = props => {
                         onKeyDown = {handleKeyPress}
                     />
                     { <Button style = {{ height: 56, borderRadius: "0 4px 4px 0" }} color = "primary" variant = "contained" onClick = {_ => sendMessage(formMessage, "MESSAGE")} disabled = {sending}>Send</Button>}
-                    { 
-                        <Button
-                            variant="contained"
-                            component="label"
-                            color = "primary"
-                        >
-                            <FiPaperclip size = {23} />
-                            <input
-                                type="file"
-                                style={{ display: "none" }}
-                                ref = {fileRef}
-                                onChange = {fileChanged}
-                            />
-                        </Button>
-                    }
                 </div>
-                <h6 style = {{ margin: 0, marginLeft: 15, color: theme.palette.text.primary, minHeight: 15 }}>{typingText}</h6>
+                {/*<h6 style = {{ margin: 0, marginLeft: 15, color: theme.palette.text.primary, minHeight: 15 }}>{typingText}</h6>*/}
             </div>
         </div>
     )

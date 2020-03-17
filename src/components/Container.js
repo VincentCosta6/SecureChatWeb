@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react"
 import { connect } from "react-redux"
 import { withTheme, useTheme, makeStyles } from "@material-ui/core"
 
+import { loadChannels } from "../actions/channelActions"
+
 import SidePanel from "./SidePanel"
 import ChannelView from "./ChannelView"
 
@@ -40,6 +42,15 @@ export const Container = props => {
             window.removeEventListener("resize", updateWindowWidth)
         }
     }, [])
+
+    useEffect(_ => {
+        reload()
+    }, [props.connection.serverConnected])
+
+    const reload = _ => {
+        if (props.channels.channels.length === 0)
+            props.loadChannels(props.user)
+    }
 
     const updateWindowWidth = _ => {
         setWidth(window.innerWidth)
@@ -79,8 +90,9 @@ export const Container = props => {
 const mapStateToProps = state => {
     return {
         user: state.user,
-        channels: state.channels
+        channels: state.channels,
+        connection: state.connection
     }
 }
 
-export default connect(mapStateToProps, {  })(withTheme(Container))
+export default connect(mapStateToProps, { loadChannels })(withTheme(Container))
