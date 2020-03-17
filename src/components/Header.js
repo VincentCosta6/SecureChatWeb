@@ -167,8 +167,6 @@ const Header = props => {
             <div
                 className={classes.list}
                 role="presentation"
-                onClick={_ => setDrawer(false)}
-                onKeyDown={_ => setDrawer(false)}
             >
                 <h2 style={{ paddingLeft: 16 }}>{props.user.username}</h2>
                 { _renderMenu() }
