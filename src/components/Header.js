@@ -175,7 +175,8 @@ const Header = props => {
         props.logout()
         props.closeWebsocket()
         props.clearData()
-        props.history.push("/login")
+        localStorage.clear()
+        props.history.push("/")
     }
 
     const _renderMenu = _ => {
