@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 
 import { connect } from "react-redux"
 import { withTheme, useTheme, makeStyles } from "@material-ui/core"
@@ -31,7 +31,19 @@ export const Container = props => {
     const theme = useTheme()
     const styles = useStyles({ theme })
 
-    console.log(props)
+    const [width, setWidth] = useState(window.innerWidth)
+
+    useEffect(_ => {
+        window.addEventListener("resize", updateWindowWidth)
+
+        return _ => {
+            window.removeEventListener("resize", updateWindowWidth)
+        }
+    }, [])
+
+    const updateWindowWidth = _ => {
+        setWidth(window.innerWidth)
+    }
 
     const _renderContent = _ => {
         const loading = props.channels.LOADING_CHANNELS
@@ -58,7 +70,7 @@ export const Container = props => {
 
     return (
         <div className = {styles.container}>
-            <SidePanel />
+            { width > 800 && <SidePanel /> }
             { _renderContent() }
         </div>
     )

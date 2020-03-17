@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Provider } from "react-redux"
 import { Router, Route, Switch } from "react-router"
@@ -6,6 +6,8 @@ import { Router, Route, Switch } from "react-router"
 import { MuiThemeProvider } from "@material-ui/core"
 
 import store from "./store"
+
+import Header from "./components/Header"
 
 import Login from "./components/Login"
 import Register from "./components/Register"
@@ -43,6 +45,7 @@ function App() {
             <Router history = {history}>
                 <MuiThemeProvider>
                     <div style = {{ height: "100vh", display: "flex", flexDirection: "column" }}>
+                        { <Header /> }
                         <div style = {{ display: "flex", flex: 1, height: "100%" }}>
                             <Switch>
                                 <Route exact path = "/" component = {Login} />

@@ -111,9 +111,11 @@ const Register = props => {
         const storage = localStorage.getItem("generatedKeys")
 
         if(!storage || storage.length < 10) {
-            RSA.generateKeyPair(4096, function(err, keypair) {
+            RSA.generateKeyPair({ bits: 4096, workers: -1 }, function(err, keypair) {
                 console.log(err)
                 console.log(keypair)
+
+                alert(err)
 
                 const privateK = forge.pki.privateKeyToPem(keypair.privateKey)
                 const publicK = forge.pki.publicKeyToPem(keypair.publicKey)
