@@ -117,6 +117,8 @@ const Register = props => {
 
                 localStorage.setItem("generatedKeys", JSON.stringify({ privateKey: privateK, publicKey: publicK }))
 
+                setGenerating(false)
+
                 handleSignup(publicK, privateK)
             })
         }
@@ -124,6 +126,8 @@ const Register = props => {
             const keypair = JSON.parse(localStorage.getItem("generatedKeys"))
             const publicK = keypair.publicKey
             const privateK = keypair.privateKey
+
+            setGenerating(false)
 
             handleSignup(publicK, privateK)
         }
@@ -215,7 +219,7 @@ const Register = props => {
         <>
             <ConfirmComp
                 title="Warning!"
-                text={["You may want to store your password in a password manager or write it down, there is no way to reset your password.",
+                text={["Registering on this website will only create a temporary account, switch to the desktop or mobile app to create a permanent account",
                     "Registering may take a long time on slower computers, and the program may become unresponsive for a while",
                     "Registering on this website may result in the loss or theft of your private key, try switching to the desktop app"]}
                 open={isOpen}
@@ -223,7 +227,7 @@ const Register = props => {
                 onProceed={handleProceed}
             />
             <div className={styles.container}>
-                <h1 className={styles.primaryText}>Register</h1>
+                <h1 className={styles.primaryText}>Temporary Account</h1>
                 <form className={styles.form} onSubmit={handleClick}>
                     <TextField className={styles.input} type="text" name="username" value={form.username} onChange={handleChange} label="Username" />
                     <TextField className={styles.input} type="password" name="password" value={form.password} onChange={handleChange} label="Password" />
