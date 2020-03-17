@@ -71,7 +71,18 @@ const Header = props => {
         pingServer(props)
         clearInterval(interval)
         interval = setInterval(_ => pingServer(props), 10000)
+
+        return _ => {
+            clearInterval(interval)
+            interval = null
+        }
     }, [props])
+
+    useEffect(_ => {
+        if(props.user.token && props.user.token.length > 10 && !props.websocket.websocket) {
+            props.openWebsocket(props.user.token)
+        }
+    }, [props.connection.serverConnected, props.user, props.user.token])
 
     const pingServer = props => {
         axios.get("https://servicetechlink.com/ping", {
@@ -234,7 +245,8 @@ const mapStateToProps = state => {
         user: state.user,
         connection: state.connection,
         channelName: channelName,
-        channels: state.channels
+        channels: state.channels,
+        websocket: state.websocket
     }
 }
 

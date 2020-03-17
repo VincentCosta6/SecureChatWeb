@@ -112,11 +112,6 @@ const Register = props => {
 
         if(!storage || storage.length < 10) {
             RSA.generateKeyPair({ bits: 4096, workers: -1 }, function(err, keypair) {
-                console.log(err)
-                console.log(keypair)
-
-                alert(err)
-
                 const privateK = forge.pki.privateKeyToPem(keypair.privateKey)
                 const publicK = forge.pki.publicKeyToPem(keypair.publicKey)
 
@@ -244,12 +239,12 @@ const Register = props => {
                     {_renderSubmittingText()}
                     {_renderErrorText()}
 
-                    <h5 className={styles.primaryText}>
+                    {/*<h5 className={styles.primaryText}>
                         Already have an account?
                         <LoginLink variant="text" color="primary" onClick={_ => props.history.push("/login")}>
                             Log in!
                         </LoginLink>
-                    </h5>
+                    </h5> */}
                 </form>
             </div>
         </>
