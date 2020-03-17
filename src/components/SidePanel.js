@@ -15,7 +15,6 @@ const useStyles = makeStyles({
     container: ({ theme }) => ({
         resize: "horizontal",
         minWidth: 200,
-        maxWidth: 400,
         overflowY: "auto", 
         backgroundColor: theme.palette.background.paper, 
     }),
@@ -59,20 +58,24 @@ const SidePanel = props => {
             )
         }
         else {
-            return props.channels.channels.slice().sort(sortChannels).map(e =>
-                <Fragment key={e._id}>
-                    <Channel data={e} setDrawer = {props.setDrawer} setActive={setActive} isCurrent={props.channels.activeChannel === e.index} myUsername = {props.user.username} />
-                    <Divider className = {styles.divider} />
-                </Fragment>
-            )
+            if( props.channels.channels.length !== 0)
+                return props.channels.channels.slice().sort(sortChannels).map(e =>
+                    <Fragment key={e._id}>
+                        <Channel data={e} setDrawer = {props.setDrawer} setActive={setActive} isCurrent={props.channels.activeChannel === e.index} myUsername = {props.user.username} />
+                        <Divider className = {styles.divider} />
+                    </Fragment>
+                )
+                else {
+                    return <h5 style = {{ margin: "0px 0px 10px 15px" }}>You arent in any channels</h5>
+                }
         }
     }
 
     return (
-        <div className = {styles.container}>
+        <div className = {styles.container} style = {{ maxWidth: props.width && props.width <= 750 ? "" : "400px" }}>
             {_renderChannels()}
             
-            <CreateChannel />
+            <CreateChannel width = {props.width} />
         </div>
     )
 }

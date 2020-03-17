@@ -8,6 +8,8 @@ const useStyles = makeStyles({
     container: ({ props, theme }) => ({
         cursor: "pointer", 
         padding: 5,
+        margin: 5,
+        boxShadow: "none",
         backgroundColor: props.isCurrent ? theme.palette.primary.main : "", 
     }),
     title: ({ props, theme }) => ({
@@ -50,7 +52,8 @@ const Channel = props => {
     }
 
     const clickCard = _ => {
-        props.setDrawer(false)
+        if(props.setDrawer)
+            props.setDrawer(false)
         props.setActive(props.data.index)
     }
 
@@ -62,6 +65,7 @@ const Channel = props => {
                 { time && <p>{formatMessageTime(time)}</p> }
             </div>
             {lastMessage !== "" && <p className = {styles.subtitle}>{sender}: {lastMessage}</p>}
+            {lastMessage === "" && <p className = {styles.subtitle}>Empty: No messages yet</p>}
         </Card>
     )
 }

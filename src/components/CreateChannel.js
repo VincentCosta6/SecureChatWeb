@@ -128,10 +128,14 @@ const CreateChannel = props => {
         }
     }, [searchUser])
 
+    const percentage = props.width && props.width <= 750 ? "90%" : "100%"
+
     return (
         <>
             <Divider />
-            <Button style={{ display: "flex", alignItems: "center", width: "100%", marginTop: 5 }} onClick={handleClickOpen} color="primary" variant="contained"><FiPlus color={theme.palette.primary.contrastText} size={23} />Channel</Button>
+            <div style = {{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Button style={{ display: "flex", alignItems: "center", justifyContent: "center", width: percentage, marginTop: 5, marginBottom: 5 }} onClick={handleClickOpen} color="primary" variant="contained"><FiPlus color={theme.palette.primary.contrastText} size={23} />Channel</Button>
+            </div>
             <Dialog
                 open={formOpen}
                 onClose={handleClose}

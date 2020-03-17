@@ -65,8 +65,14 @@ export const Container = props => {
             let message = ""
 
             if(loading) message = "Decrypting channels..."
-            else if(notIn) message = "You are not in any channels! Click '+' to create a channel"
-            else if(click) message = "Click on a channel"
+            else if(notIn) message = "You are not in any channels!"
+            else if(click && width > 750) message = "Click on a channel"
+            else if(click) return (
+                <>
+                    <h1>Channels</h1>
+                    <SidePanel width = {width} />
+                </>
+            )
 
             return (
                 <div className = {styles.viewContainer}>
@@ -80,8 +86,8 @@ export const Container = props => {
     }
 
     return (
-        <div className = {styles.container}>
-            { width > 800 && <SidePanel /> }
+        <div className = {styles.container} style = {{ flexDirection: width <= 750 ? "column" : "" }}>
+            { width > 750 && <SidePanel width = {width} /> }
             { _renderContent() }
         </div>
     )

@@ -227,7 +227,8 @@ const Register = props => {
                 onProceed={handleProceed}
             />
             <div className={styles.container}>
-                <h1 className={styles.primaryText}>Temporary Account</h1>
+                <h1 className={styles.primaryText}>SecureChat</h1>
+                <h2 className={styles.primaryText}>Temporary Account</h2>
                 <form className={styles.form} onSubmit={handleClick}>
                     <TextField className={styles.input} type="text" name="username" value={form.username} onChange={handleChange} label="Username" />
                     <TextField className={styles.input} type="password" name="password" value={form.password} onChange={handleChange} label="Password" />

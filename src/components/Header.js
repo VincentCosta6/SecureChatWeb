@@ -117,8 +117,11 @@ const Header = props => {
         const _renderMenu = _ => {
             return (
                 <>
-                    { width <= 800 && <SidePanel setDrawer = {setDrawer} /> }
+                    { width <= 750 && <h3 style = {{ marginLeft: 15 }}>Channels</h3> }
+                    { width <= 750 && <SidePanel width = {width} setDrawer = {setDrawer} /> }
                     <Divider />
+                    <Divider />
+                    { width <= 750 && <h3 style = {{ marginLeft: 15 }}>Menu</h3> }
                     <List>
                         <ListItem
                             button={!isActiveMessages}
