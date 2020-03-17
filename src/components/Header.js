@@ -115,52 +115,48 @@ const Header = props => {
         }
 
         const _renderMenu = _ => {
-            if (width <= 800) {
-                return <SidePanel />
-            }
-            else {
-                return (
-                    <>
-                        <Divider />
-                        <List>
-                            <ListItem
-                                button={!isActiveMessages}
-                                style={{ backgroundColor: getActiveBackground(isActiveMessages) }}
-                                onClick={_ => props.history.push("/messages")}
-                                disabled={props.user.privateKey === "IMPORT"}
-                            >
-                                <ListItemIcon><FaComments size={23} color={getActiveColor(isActiveMessages)} /></ListItemIcon>
-                                <ListItemText primary="Messages" style={{ color: getActiveColor(isActiveMessages), fontSize: "1.0rem" }} />
-                            </ListItem>
-                            <ListItem button disabled>
-                                <ListItemIcon><FaLock size={23} /></ListItemIcon>
-                                <ListItemText primary="Passwords" />
-                            </ListItem>
-                            <ListItem button disabled>
-                                <ListItemIcon><FaFileAlt size={23} /></ListItemIcon>
-                                <ListItemText primary="Notes" />
-                            </ListItem>
-                        </List>
-                        <Divider />
-                        <List>
-                            <ListItem
-                                button={!isActiveSettings}
-                                style={{ backgroundColor: getActiveBackground(isActiveSettings) }}
-                                onClick={_ => props.history.push("/settings")}
-                                disabled={props.user.privateKey === "IMPORT"}
-                            >
-                                <ListItemIcon><FaCog size={23} color={getActiveColor(isActiveSettings)} /></ListItemIcon>
-                                <ListItemText primary="Settings" style={{ color: getActiveColor(isActiveSettings) }} />
-                            </ListItem>
+            return (
+                <>
+                    { width <= 800 && <SidePanel setDrawer = {setDrawer} /> }
+                    <Divider />
+                    <List>
+                        <ListItem
+                            button={!isActiveMessages}
+                            style={{ backgroundColor: getActiveBackground(isActiveMessages) }}
+                            onClick={_ => props.history.push("/messages")}
+                            disabled={props.user.privateKey === "IMPORT"}
+                        >
+                            <ListItemIcon><FaComments size={23} color={getActiveColor(isActiveMessages)} /></ListItemIcon>
+                            <ListItemText primary="Messages" style={{ color: getActiveColor(isActiveMessages), fontSize: "1.0rem" }} />
+                        </ListItem>
+                        <ListItem button disabled>
+                            <ListItemIcon><FaLock size={23} /></ListItemIcon>
+                            <ListItemText primary="Passwords" />
+                        </ListItem>
+                        <ListItem button disabled>
+                            <ListItemIcon><FaFileAlt size={23} /></ListItemIcon>
+                            <ListItemText primary="Notes" />
+                        </ListItem>
+                    </List>
+                    <Divider />
+                    <List>
+                        <ListItem
+                            button={!isActiveSettings}
+                            style={{ backgroundColor: getActiveBackground(isActiveSettings) }}
+                            onClick={_ => props.history.push("/settings")}
+                            disabled={props.user.privateKey === "IMPORT"}
+                        >
+                            <ListItemIcon><FaCog size={23} color={getActiveColor(isActiveSettings)} /></ListItemIcon>
+                            <ListItemText primary="Settings" style={{ color: getActiveColor(isActiveSettings) }} />
+                        </ListItem>
 
-                            <ListItem button={true} onClick={_ => handleLogout()}>
-                                <ListItemIcon><FaSignOutAlt size={23} /></ListItemIcon>
-                                <ListItemText primary="Logout" />
-                            </ListItem>
-                        </List>
-                    </>
-                )
-            }
+                        <ListItem button={true} onClick={_ => handleLogout()}>
+                            <ListItemIcon><FaSignOutAlt size={23} /></ListItemIcon>
+                            <ListItemText primary="Delete Account" />
+                        </ListItem>
+                    </List>
+                </>
+            )
         }
 
         return (

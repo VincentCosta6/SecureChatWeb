@@ -50,6 +50,7 @@ const Channel = props => {
     }
 
     const clickCard = _ => {
+        props.setDrawer(false)
         props.setActive(props.data.index)
     }
 

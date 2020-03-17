@@ -67,8 +67,6 @@ const CreateChannel = props => {
 
         const secureString = randomBytes(64).toString("hex")
 
-        console.log(secureString)
-
         const privateKeys = {}
 
         const { publicKey, privateKey } = JSON.parse(localStorage.getItem("generatedKeys"))
@@ -90,8 +88,6 @@ const CreateChannel = props => {
             name: channelName,
             privateKeys
         }
-
-        console.log(channelObj)
 
         authReq(localStorage.getItem("token")).post("https://servicetechlink.com/channel/create", JSON.stringify(channelObj))
             .then(_data => {

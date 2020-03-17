@@ -99,14 +99,9 @@ export function decyptChannel(user, channel, index) {
     const myKey = channel.PrivateKeys[user._id]
 
     const myPrivate = JSON.parse(localStorage.getItem("generatedKeys")).privateKey
-
     const myParsedKey = forge.pki.privateKeyFromPem(myPrivate)
 
-    console.log(forge.util.decode64(myKey))
-
     const ChannelKey = myParsedKey.decrypt(forge.util.decode64(myKey), "RSA-OAEP")
-
-    console.log(ChannelKey)
 
     let decryptedMessages = []
 

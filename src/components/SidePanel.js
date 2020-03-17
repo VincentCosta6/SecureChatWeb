@@ -17,7 +17,6 @@ const useStyles = makeStyles({
         minWidth: 200,
         maxWidth: 400,
         overflowY: "auto", 
-        height: "100%",
         backgroundColor: theme.palette.background.paper, 
     }),
     loadingContainer: {
@@ -66,7 +65,7 @@ const SidePanel = props => {
         else {
             return props.channels.channels.slice().sort(sortChannels).map(e =>
                 <Fragment key={e._id}>
-                    <Channel data={e} setActive={setActive} isCurrent={props.channels.activeChannel === e.index} myUsername = {props.user.username} />
+                    <Channel data={e} setDrawer = {props.setDrawer} setActive={setActive} isCurrent={props.channels.activeChannel === e.index} myUsername = {props.user.username} />
                     <Divider className = {styles.divider} />
                 </Fragment>
             )
