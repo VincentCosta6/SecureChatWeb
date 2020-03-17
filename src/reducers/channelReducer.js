@@ -1,4 +1,4 @@
-import { LOAD_CHANNELS, ADD_CHANNEL, DELETE_CHANNEL, SET_ACTIVE, ADD_MESSAGE, SET_LOAD_CHANNELS, ADD_TYPER, REMOVE_TYPER } from "../actions/channelActions"
+import { LOAD_CHANNELS, ADD_CHANNEL, DELETE_CHANNEL, SET_ACTIVE, ADD_MESSAGE, SET_LOAD_CHANNELS, ADD_TYPER, REMOVE_TYPER, CLEAR_DATA } from "../actions/channelActions"
 
 import { decrypt } from "../actions/channelActions"
 
@@ -60,6 +60,8 @@ export default function(state = initialState, action) {
         }
         case SET_LOAD_CHANNELS:
             return { ...state, LOADING_CHANNELS: action.isLoading }
+        case CLEAR_DATA:
+                return initialState
         default: 
             return state;
     }
