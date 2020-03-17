@@ -1,15 +1,16 @@
 import { SET_USER, LOAD_USER, LOGOUT } from "../actions/userActions"
 
-const initialState = {}
+const initialState = {
+    ...JSON.parse(localStorage.getItem("user")),
+    'token': localStorage.getItem("token")
+}
 
 export default function(state = initialState, action) {
     switch(action.type) {
         case SET_USER: 
             const { user, password } = action
 
-            const userState = {}
-
-            /*const privateKey = decrypt(user.protectedKey, password)
+            const privateKey = JSON.parse(localStorage.getItem("generatedKeys")).privateKey
 
             const userState = {
                 _id: user._id,
@@ -21,7 +22,7 @@ export default function(state = initialState, action) {
                 token: action.token
             }
 
-            storage.set("userData", userState)*/
+            localStorage.setItem("userData", JSON.stringify(userState))
             
             return userState
         case LOAD_USER:

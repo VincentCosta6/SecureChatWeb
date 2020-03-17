@@ -13,6 +13,9 @@ import ConfirmComp from "./ConfirmComp"
 
 import axios from "axios"
 
+import forge from "node-forge"
+const RSA = forge.pki.rsa
+
 let interval = null
 
 const useStyles = makeStyles({
@@ -108,25 +111,17 @@ const Register = props => {
         const storage = localStorage.getItem("generatedKeys")
 
         if(!storage || storage.length < 10) {
-            window.crypto.subtle.generateKey({ 
-                name: "RSA-OAEP", 
-                modulusLength: 4096, 
-                publicExponent: new Uint8Array([1, 0, 1]), 
-                hash: "SHA-256" 
-            }, true, ["encrypt", "decrypt"])
-                .then(async keypair => {
-                    console.log(keypair)
-    
-                    const exportedPublic = await crypto.subtle.exportKey("spki", keypair.publicKey)
-                    const exportedPrivate = await crypto.subtle.exportKey("pkcs8", keypair.privateKey)
+            RSA.generateKeyPair(4096, function(err, keypair) {
+                console.log(err)
+                console.log(keypair)
 
-                    const publicK = spkiToPEM(exportedPublic)
-                    const privateK = toPem(exportedPrivate)
-    
-                    localStorage.setItem("generatedKeys", JSON.stringify({ publicKey: publicK, privateKey: privateK }))
+                const privateK = forge.pki.privateKeyToPem(keypair.privateKey)
+                const publicK = forge.pki.publicKeyToPem(keypair.publicKey)
 
-                    handleSignup(publicK, privateK)
-                })
+                localStorage.setItem("generatedKeys", JSON.stringify({ privateKey: privateK, publicKey: publicK }))
+
+                handleSignup(publicK, privateK)
+            })
         }
         else {
             const keypair = JSON.parse(localStorage.getItem("generatedKeys"))
@@ -180,7 +175,8 @@ const Register = props => {
 
     const handleSuccess = (data, privateKey) => {
         clearInterval(interval)
-        props.setUser(data.data.user, privateKey, data.data.token, form.password)
+        props.setUser(data.data.user, data.data.token, form.password)
+        localStorage.setItem("user", JSON.stringify(data.data.user))
         localStorage.setItem("token", data.data.token)
 
         props.history.push("/messages")

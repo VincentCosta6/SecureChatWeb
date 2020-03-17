@@ -1,7 +1,6 @@
 
 import { WEBSOCKET_STATUS } from "./connectionActions"
 
-import websocket from "ws"
 import { 
     WebsocketOpen, 
     WebsocketMessage, 
@@ -14,11 +13,7 @@ export const SEND_DATA = "SEND_DATA"
 export const CLOSE_WEBSOCKET = "CLOSE_WEBSOCKET"
 
 export const openWebsocket = token => dispatch => {
-    const client = new websocket("wss://servicetechlink.com/ws", {
-        headers: {
-            "Authorization": token
-        }
-    })
+    const client = new WebSocket(`wss://servicetechlink.com/ws`, ["asd", token])
 
     client.onopen = _ => {
         WebsocketOpen()

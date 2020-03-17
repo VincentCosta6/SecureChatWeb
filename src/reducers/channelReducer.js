@@ -1,5 +1,7 @@
 import { LOAD_CHANNELS, ADD_CHANNEL, DELETE_CHANNEL, SET_ACTIVE, ADD_MESSAGE, SET_LOAD_CHANNELS } from "../actions/channelActions"
 
+import { decrypt } from "../actions/channelActions"
+
 const initialState = {
     channels: [],
     activeChannel: -1,
@@ -26,12 +28,12 @@ export default function(state = initialState, action) {
         case ADD_MESSAGE:
             const newChannels = [...state.channels]
 
-            /*for(let i in newChannels) {
+            for(let i in newChannels) {
                 if(newChannels[i]._id === action.message.ChannelID) {
                     action.message.Encrypted = decrypt(action.message.Encrypted, newChannels[i].AESKey)
                     newChannels[i].messages.push(action.message)
                 }
-            }*/
+            }
 
             return { ...state, channels: newChannels }
         case SET_LOAD_CHANNELS:

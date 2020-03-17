@@ -74,7 +74,7 @@ const SidePanel = props => {
     }
 
     const reload = _ => {
-        if (props.connection.serverConnected && props.channels.channels.length === 0)
+        if (props.channels.channels.length === 0)
             props.loadChannels(props.user)
     }
 

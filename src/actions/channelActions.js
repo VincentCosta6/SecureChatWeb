@@ -1,5 +1,10 @@
 import { authReq } from "../axios-auth"
 
+import crypto from "crypto-browserify"
+
+import forge, { cipher } from "node-forge"
+const RSA = forge.pki.rsa
+
 export const LOAD_CHANNELS = "LOAD_CHANNELS"
 export const ADD_CHANNEL = "ADD_CHANNEL"
 export const DELETE_CHANNEL = "DELETE_CHANNEL"
@@ -18,7 +23,7 @@ export const loadChannels = user => dispatch => {
         isLoading: true
     })
 
-    authReq(user.token).get("https://servicetechlink.com/channels/mine")
+    authReq(localStorage.getItem("token")).get("https://servicetechlink.com/channels/mine")
         .then(data => {
             let channels = data.data.results
 
@@ -93,7 +98,15 @@ export const clearData = _ => dispatch => {
 export function decyptChannel(user, channel, index) {
     const myKey = channel.PrivateKeys[user._id]
 
-    /*const ChannelKey = privateDecrypt(user.privateKey, Buffer.from(myKey, "base64"))
+    const myPrivate = JSON.parse(localStorage.getItem("generatedKeys")).privateKey
+
+    const myParsedKey = forge.pki.privateKeyFromPem(myPrivate)
+
+    console.log(forge.util.decode64(myKey))
+
+    const ChannelKey = myParsedKey.decrypt(forge.util.decode64(myKey), "RSA-OAEP")
+
+    console.log(ChannelKey)
 
     let decryptedMessages = []
 
@@ -101,15 +114,37 @@ export function decyptChannel(user, channel, index) {
         decryptedMessages = channel.Messages.map(message => {
             return { ...message, Encrypted: decrypt(message.Encrypted, ChannelKey) }
         })
-    }*/
+    }
     
-    /*return {
+    return {
         _id: channel._id,
         Name: channel.Name,
         privateKeys: channel.PrivateKeys,
-        AESKey: ChannelKey.toString("utf8"),
+        AESKey: ChannelKey,
         index,
         messages: decryptedMessages,
         typers: {}
-    }*/
+    }
+}
+
+export function decrypt(message, AESKey) {
+    const bData = Buffer.from(message, "base64")
+
+    // convert data to buffers
+    const salt = bData.slice(0, 64)
+    const iv = bData.slice(64, 80)
+    const tag = bData.slice(80, 96)
+    const text = bData.slice(96)
+
+    // derive key using; 32 byte key length
+    const key = crypto.pbkdf2Sync(AESKey, salt , 2145, 32, "sha512")
+
+    // AES 256 GCM Mode
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv)
+    decipher.setAuthTag(tag)
+
+    // encrypt the given text
+    const decrypted = decipher.update(text, "binary", "utf8") + decipher.final("utf8")
+
+    return decrypted
 }
