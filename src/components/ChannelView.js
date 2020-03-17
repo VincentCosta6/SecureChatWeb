@@ -4,6 +4,7 @@ import { connect } from "react-redux"
 import { withTheme, useTheme } from "@material-ui/core"
 
 import { sendData } from "../actions/socketActions"
+import { encrypt } from "../actions/channelActions"
 
 import { authReq } from "../axios-auth"
 
@@ -73,13 +74,13 @@ const ChannelView = props => {
 
         setSending(true)
 
-        authReq(props.user.token).post("https://servicetechlink.com/message/create", JSON.stringify({
+        authReq(localStorage.getItem("token")).post("https://servicetechlink.com/message/create", JSON.stringify({
             channelID: currentChannel._id,
-            /*message: encrypt(JSON.stringify({
+            message: encrypt(JSON.stringify({
                 content,
                 sender: props.user.username,
                 type
-            }), currentChannel.AESKey)*/
+            }), currentChannel.AESKey)
         }))
             .then(_data => {
                 setSending(false)
