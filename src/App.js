@@ -3,6 +3,8 @@ import React, { useEffect } from 'react';
 import { Provider } from "react-redux"
 import { Router, Route, Switch } from "react-router"
 
+import { MuiThemeProvider } from "@material-ui/core"
+
 import store from "./store"
 
 import Login from "./components/Login"
@@ -39,14 +41,20 @@ function App() {
     return (
         <Provider store = {store}>
             <Router history = {history}>
-                <Switch>
-                    <Route exact path = "/" component = {Login} />
-                    <Route exact path = "/login" component = {Login} />
+                <MuiThemeProvider>
+                    <div style = {{ height: "100vh", display: "flex", flexDirection: "column" }}>
+                        <div style = {{ display: "flex", flex: 1, height: "100%" }}>
+                            <Switch>
+                                <Route exact path = "/" component = {Login} />
+                                <Route exact path = "/login" component = {Login} />
 
-                    <Route exact path = "/register" component = {Register} />
+                                <Route exact path = "/register" component = {Register} />
 
-                    <Route exact path = "/messages" component = {Messages} />
-                </Switch>
+                                <Route exact path = "/messages" component = {Messages} />
+                            </Switch>
+                        </div>
+                    </div>
+                </MuiThemeProvider>
             </Router>
         </Provider>
     )
