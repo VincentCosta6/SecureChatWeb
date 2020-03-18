@@ -244,12 +244,12 @@ const Register = props => {
                     {_renderSubmittingText()}
                     {_renderErrorText()}
 
-                    {/*<h5 className={styles.primaryText}>
-                        Already have an account?
-                        <LoginLink variant="text" color="primary" onClick={_ => props.history.push("/login")}>
-                            Log in!
+                    <h5 className={styles.primaryText}>
+                        Want a permanent account? Download the app
+                        <LoginLink variant="text" color="primary" onClick={_ => window.location = "https://github.com/Mastermind-Group/SecureChat/releases"}>
+                            Desktop
                         </LoginLink>
-                    </h5> */}
+                    </h5>
                 </form>
             </div>
         </>

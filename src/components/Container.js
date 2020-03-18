@@ -8,6 +8,8 @@ import { loadChannels } from "../actions/channelActions"
 import SidePanel from "./SidePanel"
 import ChannelView from "./ChannelView"
 
+import CreateChannel from "./CreateChannel"
+
 const useStyles = makeStyles({
     container: {
         height: "100%",
@@ -21,7 +23,7 @@ const useStyles = makeStyles({
         height: "100%", 
         backgroundColor: theme.palette.background.default,
 
-        "& h1": {
+        "& div": {
             textAlign: "center", 
             margin: "auto",
             color: theme.palette.text.primary, 
@@ -65,18 +67,25 @@ export const Container = props => {
             let message = ""
 
             if(loading) message = "Decrypting channels..."
-            else if(notIn) message = "You are not in any channels!"
+            else if(notIn) return(
+                <div className = {styles.viewContainer}>
+                    <div>
+                        <h1>You are not in any channels!</h1>
+                        <CreateChannel />
+                    </div>
+                </div>
+            )
             else if(click && width > 750) message = "Click on a channel"
             else if(click) return (
                 <>
-                    <h1>Channels</h1>
+                    <h1 style = {{ marginLeft: 15 }}>Channels</h1>
                     <SidePanel width = {width} />
                 </>
             )
 
             return (
                 <div className = {styles.viewContainer}>
-                    <h1>{message}</h1>
+                    <h1 style = {{ marginLeft: 15 }}>{message}</h1>
                 </div>
             )
         }
