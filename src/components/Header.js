@@ -85,21 +85,22 @@ const Header = props => {
     }, [props.connection.serverConnected, props.user, props.user.token])
 
     const pingServer = props => {
-        axios.get("https://servicetechlink.com/ping", {
-            timeout: 5000
-        })
-            .then(data => {
-                if (data.status === 200) {
-                    if (props.connection.serverConnected === false) {
-                        props.setServerStatus(true)
+        if(!props.connection.websocketConnected)
+            axios.get("https://servicetechlink.com/ping", {
+                timeout: 5000
+            })
+                .then(data => {
+                    if (data.status === 200) {
+                        if (props.connection.serverConnected === false) {
+                            props.setServerStatus(true)
+                        }
                     }
-                }
-            })
-            .catch(_err => {
-                if (props.connection.serverConnected) {
-                    props.setServerStatus(false)
-                }
-            })
+                })
+                .catch(_err => {
+                    if (props.connection.serverConnected) {
+                        props.setServerStatus(false)
+                    }
+                })
     }
 
     const sidePanel = _ => {
