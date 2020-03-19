@@ -36,7 +36,7 @@ function App() {
                 <MuiThemeProvider>
                     <div style = {{ height: "100vh", display: "flex", flexDirection: "column" }}>
                         { <Header /> }
-                        <div style = {{ display: "flex", flex: 1, height: "100%" }}>
+                        <div style = {{ display: "flex", flex: 1, height: "90%" }}>
                             <Switch>
                                 {/*<Route exact path = "/login" component = {Login} />*/}
                                 <Route exact path = "/" component = {Register} />

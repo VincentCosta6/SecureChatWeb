@@ -142,6 +142,21 @@ const ChannelView = props => {
                     last.Encrypted = JSON.parse(currentChannel.messages[index - 1].Encrypted)
             }
 
+            let isLast = true
+
+            if(index < currentChannel.messages.length - 1) {
+                let next = currentChannel.messages[index + 1]
+
+                let parsed = next.Encrypted
+
+                if(typeof parsed === "string")
+                    parsed = JSON.parse(parsed)
+
+                if(parsed.sender === data.sender) {
+                    isLast = false
+                }
+            }
+
             return (
                 <Message 
                     key = {e._id} 
@@ -149,6 +164,7 @@ const ChannelView = props => {
                     parsed = {data} 
                     myself = {props.user.username} 
                     last = {last} 
+                    isLast = {isLast}
                     myColor = {theme.palette.primary.main} 
                     myText = {theme.palette.primary.contrastText}
                     otherColor = {theme.palette.secondary.main}
