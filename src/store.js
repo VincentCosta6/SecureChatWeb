@@ -11,13 +11,15 @@ import channelReducer from "./reducers/channelReducer"
 import connectionReducer from "./reducers/connectionReducer"
 import socketReducer from "./reducers/socketReducer"
 import themeReducer from "./reducers/themeReducer"
+import callReducer from "./reducers/callReducer"
 
 const rootReducer = combineReducers({
     user: userReducer,
     channels: channelReducer,
     connection: connectionReducer,
     theme: themeReducer,
-    websocket: socketReducer
+    websocket: socketReducer,
+    call: callReducer
 })
 
 const initialState = {}

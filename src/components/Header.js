@@ -9,9 +9,11 @@ import { setServerStatus } from "../actions/connectionActions"
 import { closeWebsocket, openWebsocket } from "../actions/socketActions"
 import { clearData } from "../actions/channelActions"
 
+
 import axios from "axios"
 
 import SidePanel from "./SidePanel"
+import CallView from "./CallView"
 
 import {
     FaServer,
@@ -23,7 +25,7 @@ import {
     FaSignOutAlt,
     FaBars,
 } from "react-icons/fa"
-import { MdPerson } from "react-icons/md"
+
 import {
     Drawer,
     Divider,
@@ -189,6 +191,8 @@ const Header = props => {
         }
     }
 
+    
+
     let name = ""
 
     if (props.history.location.pathname === "/messages") name = "Messages"
@@ -213,7 +217,7 @@ const Header = props => {
                     {sidePanel()}
                 </Drawer>
                 <div style={{ display: "flex" }}>
-
+                    <CallView />
                     {
                         props.connection.serverConnected ?
                             <FaServer color={theme.palette.primary.main} size={23} title="Server is running" /> :
