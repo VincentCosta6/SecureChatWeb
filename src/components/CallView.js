@@ -123,18 +123,46 @@ const CallView = props => {
                 open = {props.call.incomingCall && props.call.incomingCall ? true : false}
                 onClose = {handleHangUp}
                 fullScreen
+                style = {{ backgroundColor: "black" }}
             >
                 { 
                     props.call.incomingCall && props.call.incomingCall ?
                         <>
-                            <DialogTitle id="form-dialog-title">`Incoming {data.type} call {props.call.incomingCall.WhoUsername} in 
+                            <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>`Incoming {data.type} call from {props.call.incomingCall.WhoUsername} in 
                              {props.call.incomingCall.Channel_Name} channel</DialogTitle>
-                            <DialogContent>
-                                <button onClick = {_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.SignalData)}>Accept</button>
-                                <button onClick = {props.declineCall}>Decline</button>
+                            <DialogContent style = {{ backgroundColor: "black", overflow: "none", color: "white", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                                <h1>Incoming {props.call.incomingCall.Call_Type} call</h1>
+                                <h2>{props.call.incomingCall.Channel_Name}</h2>
+                                <h3>{props.call.incomingCall.WhoUsername}</h3>
                             </DialogContent>
-                            <DialogActions>
-                                <Button onClick={handleHangUp} color="primary" style = {{ display: "absolute", bottom: 0 }}>End Call</Button>
+                            <DialogActions style = {{ backgroundColor: "black", display: "flex", justifyContent: "center" }}>
+                                <div onClick={_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.SignalData)} style = {{ 
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    bottom: 10, 
+                                    cursor: "pointer", 
+                                    backgroundColor: "green", 
+                                    borderRadius: "50%",
+                                    width: 80,
+                                    height: 80,
+                                    marginRight: 15
+                                }}>
+                                    <FaPhone color="white" style = {{ transform: "scaleX(-1)" }} size = {30} />
+                                </div>
+                                <div onClick={props.declineCall} style = {{ 
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    bottom: 10, 
+                                    cursor: "pointer", 
+                                    backgroundColor: "red", 
+                                    borderRadius: "50%",
+                                    width: 80,
+                                    height: 80
+                                }}>
+                                    <FaPhone color="white" style = {{ transform: "scaleX(-1)" }} size = {30} />
+                                </div>
                             </DialogActions>
                         </>
                         :
