@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react"
 
 import { withTheme, useTheme } from "@material-ui/core"
 
-import Peer from "simple-peer"
-
 import { sendData } from "../actions/socketActions"
-import { acceptCall, declineCall, startCall } from "../actions/callActions"
+import { acceptCall, declineCall, startCall, endCall } from "../actions/callActions"
 
 import { FiPhone, FiPhoneOff, FiVideo } from "react-icons/fi"
 
@@ -33,6 +31,20 @@ const CallView = props => {
     const [callActive, setCallActive] = useState(false)
 
     const [data, setData] = useState({})
+
+    useEffect(_ => {
+        if(callActive) {
+            setTimeout(_ => {
+                document.querySelector("video#localVideo").addEventListener("dragend", event => {
+                    event = event || window.event
+        
+                    setX(event.pageX)
+                    setY(event.pageY)
+                })
+            }, 500)
+            
+        }
+    }, [callActive])
 
     useEffect(_ => {
         if(props.channels.activeChannel !== -1) {
@@ -82,6 +94,7 @@ const CallView = props => {
 
     const handleHangUp = _ => {
         setCallActive(false)
+        props.endCall()
         //stream.getTracks().forEach(track => track.stop())
         //document.querySelector("video#localAudio").remove()
     }
@@ -103,6 +116,9 @@ const CallView = props => {
             <FiPhoneOff size = {23} color = {"red"} onClick = {handleHangUp} style={{ cursor: "pointer", marginRight: 15 }} />
         </>
     )
+
+    const [x, setX] = useState(0)
+    const [y, setY] = useState(0)
 
     return (
         <>
@@ -142,14 +158,15 @@ const CallView = props => {
                 aria-labelledby="form-dialog-title"
                 maxWidth = {0}
                 fullScreen
+                style = {{ backgroundColor: "black" }}
             >
-                <DialogTitle id="form-dialog-title">{`${data.type} call`}</DialogTitle>
-                <DialogContent>
-                    <video id = "localVideo" muted autoPlay playsInline controls = {false} style = {{ width: "10%", height: "10%", position: "absolute" }} /> 
+                <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>{`${data.type} call`}</DialogTitle>
+                <DialogContent style = {{ backgroundColor: "black" }}>
+                    <video id = "localVideo"  draggable muted autoPlay playsInline controls = {false} style = {{ width: "10%", height: "10%", position: "absolute", left: x, top: y, zIndex: 500 }} /> 
                     <video id = "externalVideo" autoPlay playsInline controls = {false} style = {{ width: "100%", height: "100%" }} /> 
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleHangUp} color="primary">End Call</Button>
+                <DialogActions style = {{ backgroundColor: "black" }}>
+                    <Button onClick={handleHangUp} color="secondary">End Call</Button>
                 </DialogActions>
             </Dialog>
         </>
@@ -166,4 +183,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps, { sendData, startCall, acceptCall, declineCall })(CallView)
+export default connect(mapStateToProps, { sendData, startCall, acceptCall, declineCall, endCall })(CallView)

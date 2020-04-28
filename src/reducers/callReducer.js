@@ -1,4 +1,4 @@
-import { START_CALL, CALL_INCOMING, DECLINE_CALL, ACCEPT_CALL, CALL_ACCEPTED, CALL_DECLINED } from "../actions/callActions"
+import { START_CALL, CALL_INCOMING, DECLINE_CALL, ACCEPT_CALL, CALL_ACCEPTED, CALL_DECLINED, END_CALL } from "../actions/callActions"
 
 import store from "../store"
 
@@ -75,6 +75,10 @@ export default function(state = initialState, action) {
             })
 
             return { ...state, incomingCall: null, currentCall: true }
+        }
+        case END_CALL: {
+            state.peer.end()
+            return { ...state, currentCall: null, peer: new Peer({ initiator: false, trickle: false }) }
         }
         default: 
             return state;
