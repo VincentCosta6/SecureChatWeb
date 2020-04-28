@@ -63,6 +63,14 @@ export default function(state = initialState, action) {
         }
         case CALL_ACCEPTED: {
             state.peer.signal(action.answer.MessageContent.SignalData)
+
+            state.peer.on("stream", stream2 => {
+                const externalVid = document.querySelector("video#externalVideo")
+                externalVid.srcObject = stream2
+
+                externalVid.play()
+            })
+
             return { ...state, incomingCall: null, currentCall: true }
         }
         default: 
