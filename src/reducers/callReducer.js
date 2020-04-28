@@ -4,11 +4,13 @@ import store from "../store"
 
 import { sendData } from "../actions/socketActions"
 
+import Peer from "simple-peer"
+
 const initialState = {
     incomingCalls: [],
     incomingCall: null,
     currentCall: null,
-    peer: null
+    peer: new Peer({ initiator: false, trickle: false })
 }
 
 export default function(state = initialState, action) {
