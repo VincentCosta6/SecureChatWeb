@@ -128,12 +128,11 @@ const CallView = props => {
                 { 
                     props.call.incomingCall && props.call.incomingCall ?
                         <>
-                            <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>`Incoming {data.type} call from {props.call.incomingCall.WhoUsername} in 
-                             {props.call.incomingCall.Channel_Name} channel</DialogTitle>
+                            <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>{props.call.incomingCall.Call_Type} call</DialogTitle>
                             <DialogContent style = {{ backgroundColor: "black", overflow: "none", color: "white", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
                                 <h1>Incoming {props.call.incomingCall.Call_Type} call</h1>
-                                <h2>{props.call.incomingCall.Channel_Name}</h2>
-                                <h3>{props.call.incomingCall.WhoUsername}</h3>
+                                <h2>Channel: {props.call.incomingCall.Channel_Name}</h2>
+                                <h3>Caller: {props.call.incomingCall.WhoUsername}</h3>
                             </DialogContent>
                             <DialogActions style = {{ backgroundColor: "black", display: "flex", justifyContent: "center" }}>
                                 <div onClick={_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.SignalData)} style = {{ 
@@ -144,11 +143,15 @@ const CallView = props => {
                                     cursor: "pointer", 
                                     backgroundColor: "green", 
                                     borderRadius: "50%",
-                                    width: 80,
-                                    height: 80,
+                                    width: "5vh",
+                                    height: "5vh",
+                                    minWidth: 50,
+                                    minHeight: 50,
+                                    maxWidth: 80,
+                                    maxHeight: 80,
                                     marginRight: 15
                                 }}>
-                                    <FaPhone color="white" style = {{ transform: "scaleX(-1)" }} size = {30} />
+                                    <FaPhone color="white" style = {{ transform: "scaleX(-1)", width: "2.2vh", height: "2.2vh" }} />
                                 </div>
                                 <div onClick={props.declineCall} style = {{ 
                                     display: "flex",
@@ -158,10 +161,14 @@ const CallView = props => {
                                     cursor: "pointer", 
                                     backgroundColor: "red", 
                                     borderRadius: "50%",
-                                    width: 80,
-                                    height: 80
+                                    width: "5vh",
+                                    height: "5vh",
+                                    minWidth: 50,
+                                    minHeight: 50,
+                                    maxWidth: 80,
+                                    maxHeight: 80,
                                 }}>
-                                    <FaPhone color="white" style = {{ transform: "scaleX(-1)" }} size = {30} />
+                                    <FaPhone color="white" style = {{ transform: "scaleX(-1)", width: "2.2vh", height: "2.2vh" }} size = {30} />
                                 </div>
                             </DialogActions>
                         </>
