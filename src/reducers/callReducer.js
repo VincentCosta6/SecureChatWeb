@@ -11,17 +11,21 @@ const initialState = {
     incomingCall: null,
     currentCall: null,
     stream: null,
-    peer: new Peer({ initiator: false, trickle: false })
+    peer: new Peer({ initiator: false, trickle: false }),
 }
 
 export default function(state = initialState, action) {
     switch(action.type) {
         case START_CALL: {
             
-            return { ...state, peer: action.peer, stream: action.stream }
+            return { ...state, peer: action.peer, stream: action.stream, incomingCall: action.data }
         }
         case CALL_INCOMING: {
             const data = action.data
+
+            if(state.currentCall && state.currentCall.MessageContent.Channel_ID === data.MessageContent.Channel_ID) {
+                return { ...state }
+            }
 
             return { ...state, incomingCall: data }
         }
@@ -77,7 +81,7 @@ export default function(state = initialState, action) {
 
             state.peer.addStream(action.stream3)
 
-            return { ...state, incomingCall: null, currentCall: true, stream: action.stream3 }
+            return { ...state, currentCall: state.incomingCall, incomingCall: null, stream: action.stream3 }
         }
         case CALL_ACCEPTED: {
             state.peer.signal(action.answer.MessageContent.SignalData)
@@ -89,7 +93,7 @@ export default function(state = initialState, action) {
                 externalVid.play()
             })
 
-            return { ...state, incomingCall: null, currentCall: true }
+            return { ...state, currentCall: state.incomingCall || state.currentCall, incomingCall: null }
         }
         case END_CALL: {
             state.peer.end()

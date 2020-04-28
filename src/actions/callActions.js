@@ -20,15 +20,14 @@ export const startCall = (constraints, activeChannel, user_id, username, type) =
     navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => {
                 const peer = new Peer({ initiator: true, stream, trickle: false })
+                const currentChannel = store.getState().channels.channels[activeChannel]
+                const users = Object.keys(currentChannel.privateKeys).map(key => key)
 
                 const audioElement = document.querySelector("video#localVideo")
                 audioElement.srcObject = stream
 
                 peer.on("signal", signalData => {
                     console.log(signalData)
-
-                    const currentChannel = store.getState().channels.channels[activeChannel]
-                    const users = Object.keys(currentChannel.privateKeys).map(key => key)
 
                     store.dispatch(sendData(JSON.stringify({
                         type: "OFFER",
@@ -78,7 +77,17 @@ export const startCall = (constraints, activeChannel, user_id, username, type) =
                 dispatch({
                     type: START_CALL,
                     peer,
-                    stream
+                    stream,
+                    data: {
+                        whoID: user_id,
+                        whoUsername: username,
+                        
+                        call_type: type,
+                        channel_id: currentChannel._id,
+                        channel_name: currentChannel.Name,
+
+                        users,
+                    }
                 })
             })
             .catch(err => {

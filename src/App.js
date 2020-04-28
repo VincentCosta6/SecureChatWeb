@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Provider } from "react-redux"
 import { Router, Route, Switch } from "react-router"
 
-import { MuiThemeProvider } from "@material-ui/core"
+import { MuiThemeProvider, useTheme } from "@material-ui/core"
 
 import store from "./store"
 
@@ -18,6 +18,7 @@ import { createBrowserHistory } from "history"
 const history = createBrowserHistory()
 
 function App() {
+    const theme = useTheme()
 
     useEffect(_ => {
         const storage = localStorage.getItem("token")
@@ -35,7 +36,7 @@ function App() {
     return (
         <Provider store = {store}>
             <Router history = {history}>
-                <MuiThemeProvider>
+                <MuiThemeProvider theme = {theme}>
                     <div style = {{ height: "100vh", display: "flex", flexDirection: "column" }}>
                         { <Header /> }
                         <div style = {{ display: "flex", flex: 1, height: "90%" }}>

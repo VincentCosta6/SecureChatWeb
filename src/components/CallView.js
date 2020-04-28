@@ -22,6 +22,7 @@ import {
     List,
     ListItem,
 } from "@material-ui/core"
+import Draggable from "react-draggable"
 
 import { connect } from "react-redux"
 
@@ -29,26 +30,11 @@ const CallView = props => {
     const theme = useTheme()
 
     const [otherID, setOtherID] = useState("")
-    const [stream, setStream] = useState(null)
     const [callActive, setCallActive] = useState(false)
 
     const [data, setData] = useState({})
     const [microphoneActive, setMicrophoneActive] = useState(true)
-    const [speakerIndex, setSpeakerIndex] = useState(0)
 
-    useEffect(_ => {
-        if(callActive) {
-            setTimeout(_ => {
-                document.querySelector("video#localVideo").addEventListener("dragend", event => {
-                    event = event || window.event
-        
-                    setX(event.pageX)
-                    setY(event.pageY)
-                })
-            }, 500)
-            
-        }
-    }, [callActive])
 
     useEffect(_ => {
         if(props.channels.activeChannel !== -1) {
@@ -83,11 +69,6 @@ const CallView = props => {
         }
 
         handleCall(constraints, { type: "Video" })
-    }
-
-    const handleConnect = answer => {
-        console.log(answer)
-        data.peer.signal(answer)
     }
 
     const handleCall = (constraints, data) => {
@@ -128,9 +109,6 @@ const CallView = props => {
         }
     }
 
-    const [x, setX] = useState(0)
-    const [y, setY] = useState(0)
-
     return (
         <>
             {
@@ -143,46 +121,48 @@ const CallView = props => {
                     </>
             }
             <Dialog
-                open = {props.call.incomingCall && props.call.incomingCall.MessageContent}
+                open = {props.call.incomingCall && props.call.incomingCall.MessageContent ? true : false}
                 onClose = {handleHangUp}
-                maxWidth = {0}
                 fullScreen
             >
-                { props.call.incomingCall && props.call.incomingCall.MessageContent && 
-                    <>
-                        <DialogTitle id="form-dialog-title">`Incoming {data.type} call {props.call.incomingCall.MessageContent.WhoUsername} in 
-                         {props.call.incomingCall.MessageContent.Channel_Name} channel</DialogTitle>
-                        <DialogContent>
-                            <button onClick = {_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.MessageContent.SignalData)}>Accept</button>
-                            <button onClick = {props.declineCall}>Decline</button>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleHangUp} color="primary" style = {{ display: "absolute", bottom: 0 }}>End Call</Button>
-                        </DialogActions>
-                    </>
+                { 
+                    props.call.incomingCall && props.call.incomingCall.MessageContent ?
+                        <>
+                            <DialogTitle id="form-dialog-title">`Incoming {data.type} call {props.call.incomingCall.MessageContent.WhoUsername} in 
+                            {props.call.incomingCall.MessageContent.Channel_Name} channel</DialogTitle>
+                            <DialogContent>
+                                <button onClick = {_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.MessageContent.SignalData)}>Accept</button>
+                                <button onClick = {props.declineCall}>Decline</button>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleHangUp} color="primary" style = {{ display: "absolute", bottom: 0 }}>End Call</Button>
+                            </DialogActions>
+                        </>
+                        :
+                        <div></div>
                 }
-                
             </Dialog>
             <Dialog
-                open={callActive || props.call.currentCall}
+                open={callActive || props.call.currentCall ? true : false}
                 onClose={handleHangUp}
                 aria-labelledby="form-dialog-title"
-                maxWidth = {0}
                 fullScreen
                 style = {{ backgroundColor: "black" }}
             >
-                <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>{`${data.type} call`}</DialogTitle>
+                <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>
+                    {`${props.call.incomingCall ? props.call.incomingCall.call_type : props.call.currentCall ? props.call.currentCall.call_type : ""} call`}
+                </DialogTitle>
                 <DialogContent style = {{ backgroundColor: "black", overflow: "none" }}>
-                    <video id = "localVideo"  draggable muted autoPlay playsInline controls = {false} style = {{ 
-                        width: "25%", 
-                        minWidth: 100,
-                        maxWidth: 450,
-                        position: "absolute", 
-                        left: x, 
-                        top: y, 
-                        zIndex: 500 
-                        }} 
-                    /> 
+                    <Draggable defaultPosition = {{ x: 10, y: 10 }}>
+                        <video id = "localVideo"  draggable muted autoPlay playsInline controls = {false} style = {{ 
+                            width: "25%", 
+                            minWidth: 100,
+                            maxWidth: 450,
+                            position: "absolute", 
+                            zIndex: 500,
+                            }} 
+                        /> 
+                    </Draggable>
                     <video id = "externalVideo" autoPlay playsInline controls = {false} style = {{ width: "100%", height: "100%" }} /> 
                 </DialogContent>
                 <DialogActions style = {{ backgroundColor: "black", display: "flex", justifyContent: "center" }}>
