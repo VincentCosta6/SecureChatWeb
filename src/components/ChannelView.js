@@ -218,7 +218,7 @@ const ChannelView = props => {
                         value = {formMessage} 
                         onChange = {event => setMessage(event.target.value)} 
                         onKeyDown = {handleKeyPress}
-                        ref = {inputRef}
+                        inputRef={inputRef}
                     />
                     { 
                         <Button style = {{ height: 56, borderRadius: "0 4px 4px 0" }} color = "primary" variant = "contained" onClick = {_ => {
