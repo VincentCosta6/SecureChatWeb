@@ -6,6 +6,8 @@ import { sendData } from "../actions/socketActions"
 import { acceptCall, declineCall, startCall, endCall } from "../actions/callActions"
 
 import { FiPhone, FiPhoneOff, FiVideo } from "react-icons/fi"
+import { FaPhone, FaMicrophone, FaMicrophoneSlash } from "react-icons/fa"
+import { GiSpeaker } from "react-icons/gi"
 
 import {
     Dialog,
@@ -31,6 +33,8 @@ const CallView = props => {
     const [callActive, setCallActive] = useState(false)
 
     const [data, setData] = useState({})
+    const [microphoneActive, setMicrophoneActive] = useState(true)
+    const [speakerIndex, setSpeakerIndex] = useState(0)
 
     useEffect(_ => {
         if(callActive) {
@@ -117,6 +121,13 @@ const CallView = props => {
         </>
     )
 
+    const toggleMicrophone = _ => {
+        for(let stream of props.call.stream.getAudioTracks()) {
+            stream.enabled = !microphoneActive
+            setMicrophoneActive(!microphoneActive)
+        }
+    }
+
     const [x, setX] = useState(0)
     const [y, setY] = useState(0)
 
@@ -146,7 +157,7 @@ const CallView = props => {
                             <button onClick = {props.declineCall}>Decline</button>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleHangUp} color="primary">End Call</Button>
+                            <Button onClick={handleHangUp} color="primary" style = {{ display: "absolute", bottom: 0 }}>End Call</Button>
                         </DialogActions>
                     </>
                 }
@@ -161,12 +172,59 @@ const CallView = props => {
                 style = {{ backgroundColor: "black" }}
             >
                 <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>{`${data.type} call`}</DialogTitle>
-                <DialogContent style = {{ backgroundColor: "black" }}>
-                    <video id = "localVideo"  draggable muted autoPlay playsInline controls = {false} style = {{ width: "10%", height: "10%", position: "absolute", left: x, top: y, zIndex: 500 }} /> 
+                <DialogContent style = {{ backgroundColor: "black", overflow: "none" }}>
+                    <video id = "localVideo"  draggable muted autoPlay playsInline controls = {false} style = {{ 
+                        width: "25%", 
+                        minWidth: 100,
+                        maxWidth: 450,
+                        position: "absolute", 
+                        left: x, 
+                        top: y, 
+                        zIndex: 500 
+                        }} 
+                    /> 
                     <video id = "externalVideo" autoPlay playsInline controls = {false} style = {{ width: "100%", height: "100%" }} /> 
                 </DialogContent>
-                <DialogActions style = {{ backgroundColor: "black" }}>
-                    <Button onClick={handleHangUp} color="secondary">End Call</Button>
+                <DialogActions style = {{ backgroundColor: "black", display: "flex", justifyContent: "center" }}>
+                    <div onClick={toggleMicrophone} style = {{ 
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            bottom: 10, 
+                            cursor: "pointer", 
+                            backgroundColor: "#eee", 
+                            borderRadius: "50%",
+                            width: 50,
+                            height: 50
+                        }}>
+                        { microphoneActive ? <FaMicrophone color="black" /> : <FaMicrophoneSlash color="black" />}
+                    </div>
+                    <div onClick={handleHangUp} style = {{ 
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        bottom: 10, 
+                        cursor: "pointer", 
+                        backgroundColor: "red", 
+                        borderRadius: "50%",
+                        width: 50,
+                        height: 50
+                    }}>
+                        <FaPhone color="white" style = {{ transform: "scaleX(-1)" }} />
+                    </div>
+                    <div onClick={handleHangUp} style = {{ 
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        bottom: 10, 
+                        cursor: "pointer", 
+                        backgroundColor: "#eee", 
+                        borderRadius: "50%",
+                        width: 50,
+                        height: 50
+                    }}>
+                        <GiSpeaker color="black" size = {23} />
+                    </div>
                 </DialogActions>
             </Dialog>
         </>

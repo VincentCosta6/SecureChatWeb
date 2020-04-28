@@ -1,4 +1,4 @@
-import { START_CALL, CALL_INCOMING, DECLINE_CALL, ACCEPT_CALL, CALL_ACCEPTED, CALL_DECLINED, END_CALL } from "../actions/callActions"
+import { START_CALL, CALL_INCOMING, DECLINE_CALL, ACCEPT_CALL, CALL_ACCEPTED, CALL_DECLINED, END_CALL, endCall } from "../actions/callActions"
 
 import store from "../store"
 
@@ -10,6 +10,7 @@ const initialState = {
     incomingCalls: [],
     incomingCall: null,
     currentCall: null,
+    stream: null,
     peer: new Peer({ initiator: false, trickle: false })
 }
 
@@ -17,7 +18,7 @@ export default function(state = initialState, action) {
     switch(action.type) {
         case START_CALL: {
             
-            return { ...state, peer: action.peer }
+            return { ...state, peer: action.peer, stream: action.stream }
         }
         case CALL_INCOMING: {
             const data = action.data
@@ -58,11 +59,15 @@ export default function(state = initialState, action) {
                 externalVid.play()
             })
 
+            state.peer.on("close", _ => {
+                store.dispatch(endCall())
+            })
+
             state.peer.signal(action.offer)
 
             state.peer.addStream(action.stream3)
 
-            return { ...state, incomingCall: null, currentCall: 1 }
+            return { ...state, incomingCall: null, currentCall: 1, stream: action.stream3 }
         }
         case CALL_ACCEPTED: {
             state.peer.signal(action.answer.MessageContent.SignalData)

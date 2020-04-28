@@ -53,13 +53,18 @@ export const startCall = (constraints, activeChannel, user_id, username, type) =
                 peer.on("stream", stream2 => {
                     const externalVid = document.querySelector("video#externalVideo")
                     externalVid.srcObject = stream2
+                })
 
-                    externalVid.play()
+                peer.on("close", _ => {
+                    dispatch({
+                        type: END_CALL
+                    })
                 })
 
                 dispatch({
                     type: START_CALL,
-                    peer
+                    peer,
+                    stream
                 })
             })
             .catch(err => {
