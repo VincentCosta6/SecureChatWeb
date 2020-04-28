@@ -1,6 +1,7 @@
 import store from "../store"
 
 import { addMessage, addChannel, addTyper, removeTyper, addUser, loadChannels } from "../actions/channelActions"
+import { callIncoming, callAccepted } from "../actions/callActions"
 
 const timeouts = {}
 
@@ -91,6 +92,14 @@ export const handleMessage = message => {
                 [person]: setTimeout(_ => store.dispatch(removeTyper(message.MessageContent)), 3500)
             }
             
+            break
+        }
+        case "OFFER": {
+            store.dispatch(callIncoming(message))
+            break
+        }
+        case "ANSWER": {
+            store.dispatch(callAccepted(message))
             break
         }
         default:

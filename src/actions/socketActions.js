@@ -33,7 +33,9 @@ export const openWebsocket = token => dispatch => {
         WebsocketError(err)
     }
 
-    client.onclose = _ => {
+    client.onclose = ev => {
+        console.error(ev)
+        
         WebsocketClose()
         
         dispatch({
