@@ -121,17 +121,17 @@ const CallView = props => {
                     </>
             }
             <Dialog
-                open = {props.call.incomingCall && props.call.incomingCall.MessageContent ? true : false}
+                open = {props.call.incomingCall && props.call.incomingCall ? true : false}
                 onClose = {handleHangUp}
                 fullScreen
             >
                 { 
-                    props.call.incomingCall && props.call.incomingCall.MessageContent ?
+                    props.call.incomingCall && props.call.incomingCall ?
                         <>
-                            <DialogTitle id="form-dialog-title">`Incoming {data.type} call {props.call.incomingCall.MessageContent.WhoUsername} in 
-                            {props.call.incomingCall.MessageContent.Channel_Name} channel</DialogTitle>
+                            <DialogTitle id="form-dialog-title">`Incoming {data.type} call {props.call.incomingCall.WhoUsername} in 
+                            {props.call.incomingCall.Channel_Name} channel</DialogTitle>
                             <DialogContent>
-                                <button onClick = {_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.MessageContent.SignalData)}>Accept</button>
+                                <button onClick = {_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.SignalData)}>Accept</button>
                                 <button onClick = {props.declineCall}>Decline</button>
                             </DialogContent>
                             <DialogActions>
@@ -150,7 +150,7 @@ const CallView = props => {
                 style = {{ backgroundColor: "black" }}
             >
                 <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>
-                    {`${props.call.incomingCall ? props.call.incomingCall.call_type : props.call.currentCall ? props.call.currentCall.call_type : ""} call`}
+                    {`${props.call.incomingCall ? props.call.incomingCall.call_type : (props.call.currentCall ? props.call.currentCall.Call_Type : "")} call`}
                 </DialogTitle>
                 <DialogContent style = {{ backgroundColor: "black", overflow: "none" }}>
                     <Draggable defaultPosition = {{ x: 10, y: 10 }}>

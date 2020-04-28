@@ -23,20 +23,22 @@ export default function(state = initialState, action) {
         case CALL_INCOMING: {
             const data = action.data
 
-            if(state.currentCall && state.currentCall.MessageContent.Channel_ID === data.MessageContent.Channel_ID) {
+            if(state.currentCall && state.currentCall.Channel_ID === data.MessageContent.Channel_ID) {
                 return { ...state }
             }
 
-            return { ...state, incomingCall: data }
+            return { ...state, incomingCall: data.MessageContent }
         }
         case DECLINE_CALL: {
             return { ...state, incomingCall: null }
         }
         case ACCEPT_CALL: {
             state.peer.on("signal", signalData => {
-                const currentChannel = store.getState().channels.channels.find(channel => channel._id === action.data.MessageContent.Channel_ID)
+                const currentChannel = store.getState().channels.channels.find(channel => channel._id === action.data.Channel_ID)
 
-                const users = Object.keys(currentChannel.privateKeys).map(key => key)
+                let users = Object.keys(currentChannel.privateKeys).map(key => key)
+
+                users = users.filter(user => store.getState().user._id !== user)
 
                 const audioElement = document.querySelector("video#localVideo")
                 audioElement.srcObject = action.stream3
@@ -73,7 +75,8 @@ export default function(state = initialState, action) {
                 store.dispatch(endCall())
             })
 
-            state.peer.on("error", _ => {
+            state.peer.on("error", err => {
+                console.error(err)
                 store.dispatch(endCall())
             })
 
@@ -81,7 +84,7 @@ export default function(state = initialState, action) {
 
             state.peer.addStream(action.stream3)
 
-            return { ...state, currentCall: state.incomingCall, incomingCall: null, stream: action.stream3 }
+            return { ...state, currentCall: { ...state.incomingCall }, incomingCall: null, stream: action.stream3 }
         }
         case CALL_ACCEPTED: {
             state.peer.signal(action.answer.MessageContent.SignalData)

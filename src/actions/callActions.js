@@ -104,7 +104,7 @@ export const callIncoming = data => dispatch => {
 }
 
 export const acceptCall = (data, offer) => dispatch => {
-    const constraints = data.MessageContent.Call_Type === "Video" ? 
+    const constraints = data.Call_Type === "Video" ? 
     { video: true, audio: true } :
     { audio: true }
 
