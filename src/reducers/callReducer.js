@@ -33,6 +33,9 @@ export default function(state = initialState, action) {
 
                 const users = Object.keys(currentChannel.privateKeys).map(key => key)
 
+                const audioElement = document.querySelector("video#localVideo")
+                audioElement.srcObject = action.stream3
+
                 store.dispatch(sendData(JSON.stringify({
                     type: "ANSWER",
                     content: {

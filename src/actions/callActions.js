@@ -82,9 +82,6 @@ export const acceptCall = (data, offer) => dispatch => {
 
     navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => {
-                const audioElement = document.querySelector("video#localVideo")
-                audioElement.srcObject = stream
-
                 dispatch({
                     type: ACCEPT_CALL,
                     data,
