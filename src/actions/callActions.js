@@ -21,7 +21,13 @@ export const startCall = (constraints, activeChannel, user_id, username, type) =
             .then(stream => {
                 const peer = new Peer({ initiator: true, stream, trickle: false })
                 const currentChannel = store.getState().channels.channels[activeChannel]
-                const users = Object.keys(currentChannel.privateKeys).map(key => key)
+                let users = Object.keys(currentChannel.privateKeys).map(key => key)
+
+                console.log(users)
+
+                users = users.filter(user => store.getState().user._id !== user)
+
+                console.log(users)
 
                 const audioElement = document.querySelector("video#localVideo")
                 audioElement.srcObject = stream

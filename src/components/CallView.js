@@ -28,31 +28,10 @@ import { connect } from "react-redux"
 
 const CallView = props => {
     const theme = useTheme()
-
-    const [otherID, setOtherID] = useState("")
     const [callActive, setCallActive] = useState(false)
 
     const [data, setData] = useState({})
     const [microphoneActive, setMicrophoneActive] = useState(true)
-
-
-    useEffect(_ => {
-        if(props.channels.activeChannel !== -1) {
-            const channel = props.channels.channels[props.channels.activeChannel]
-
-            if(Object.keys(channel.privateKeys).length === 2) {
-                const copy = Object.assign(channel.privateKeys, {})
-
-                delete copy[props.user._id];
-
-                const user_id = Object.keys(copy)[0]
-
-                setOtherID(user_id)
-            }
-        }
-        else 
-            setOtherID("")
-    }, [props.channels.activeChannel, props.channels.channels])
 
     const handleVoiceCall = _ => {
         const constraints = {
@@ -109,13 +88,33 @@ const CallView = props => {
         }
     }
 
+    const getTitle = _ => {
+        if(props.call.incomingCall) {
+            if(props.call.incomingCall.call_type) {
+                return props.call.incomingCall.call_type
+            }
+            else {
+                return props.call.incomingCall.Call_Type
+            }
+        }
+        else if(props.call.currentCall) {
+            if(props.call.currentCall.call_type) {
+                return props.call.currentCall.call_type
+            }
+            else {
+                return props.call.currentCall.Call_Type
+            }
+        }
+        else return ""
+    }
+
     return (
         <>
             {
                 props.connection.websocketConnected && 
                     <>
-                        { otherID !== "" && _renderCallButton() }
-                        { otherID !== "" && _renderVideoButton() }
+                        { props.channels.activeChannel !== -1 && _renderCallButton() }
+                        { props.channels.activeChannel !== -1 && _renderVideoButton() }
 
                         { callActive && _renderActiveCall() }
                     </>
@@ -129,7 +128,7 @@ const CallView = props => {
                     props.call.incomingCall && props.call.incomingCall ?
                         <>
                             <DialogTitle id="form-dialog-title">`Incoming {data.type} call {props.call.incomingCall.WhoUsername} in 
-                            {props.call.incomingCall.Channel_Name} channel</DialogTitle>
+                             {props.call.incomingCall.Channel_Name} channel</DialogTitle>
                             <DialogContent>
                                 <button onClick = {_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.SignalData)}>Accept</button>
                                 <button onClick = {props.declineCall}>Decline</button>
@@ -150,7 +149,7 @@ const CallView = props => {
                 style = {{ backgroundColor: "black" }}
             >
                 <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>
-                    {`${props.call.incomingCall ? props.call.incomingCall.call_type : (props.call.currentCall ? props.call.currentCall.Call_Type : "")} call`}
+                    { getTitle() } call
                 </DialogTitle>
                 <DialogContent style = {{ backgroundColor: "black", overflow: "none" }}>
                     <Draggable defaultPosition = {{ x: 10, y: 10 }}>

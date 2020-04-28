@@ -18,7 +18,7 @@ export default function(state = initialState, action) {
     switch(action.type) {
         case START_CALL: {
             
-            return { ...state, peer: action.peer, stream: action.stream, incomingCall: action.data }
+            return { ...state, peer: action.peer, stream: action.stream, currentCall: action.data }
         }
         case CALL_INCOMING: {
             const data = action.data
@@ -84,7 +84,7 @@ export default function(state = initialState, action) {
 
             state.peer.addStream(action.stream3)
 
-            return { ...state, currentCall: { ...state.incomingCall }, incomingCall: null, stream: action.stream3 }
+            return { ...state, currentCall: state.incomingCall, incomingCall: null, stream: action.stream3 }
         }
         case CALL_ACCEPTED: {
             state.peer.signal(action.answer.MessageContent.SignalData)
