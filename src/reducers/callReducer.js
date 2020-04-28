@@ -57,7 +57,9 @@ export default function(state = initialState, action) {
 
             state.peer.signal(action.offer)
 
-            return { ...state, incomingCall: null, currentCall: 1,  }
+            state.peer.addStream(action.stream3)
+
+            return { ...state, incomingCall: null, currentCall: 1 }
         }
         case CALL_ACCEPTED: {
             state.peer.signal(action.answer.MessageContent.SignalData)

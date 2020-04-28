@@ -76,11 +76,23 @@ export const callIncoming = data => dispatch => {
 }
 
 export const acceptCall = (data, offer) => dispatch => {
-    dispatch({
-        type: ACCEPT_CALL,
-        data,
-        offer
-    })
+    const constraints = data.MessageContent.Call_Type === "Video" ? 
+    { video: true, audio: true } :
+    { audio: true }
+
+    navigator.mediaDevices.getUserMedia(constraints)
+            .then(stream => {
+                dispatch({
+                    type: ACCEPT_CALL,
+                    data,
+                    offer,
+                    stream3: stream
+                })
+            })
+            .catch(err => {
+                console.error(err)
+            })
+    
 }
 export const declineCall = declineCall => dispatch => {
     dispatch({

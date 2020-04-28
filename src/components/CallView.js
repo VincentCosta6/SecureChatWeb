@@ -82,7 +82,7 @@ const CallView = props => {
 
     const handleHangUp = _ => {
         setCallActive(false)
-        stream.getTracks().forEach(track => track.stop())
+        //stream.getTracks().forEach(track => track.stop())
         //document.querySelector("video#localAudio").remove()
     }
 
@@ -145,7 +145,7 @@ const CallView = props => {
             >
                 <DialogTitle id="form-dialog-title">{`${data.type} call`}</DialogTitle>
                 <DialogContent>
-                    <video id = "localVideo" autoPlay playsInline controls = {false} style = {{ width: "10%", height: "10%", position: "absolute" }} /> 
+                    <video id = "localVideo" muted autoPlay playsInline controls = {false} style = {{ width: "10%", height: "10%", position: "absolute" }} /> 
                     <video id = "externalVideo" autoPlay playsInline controls = {false} style = {{ width: "100%", height: "100%" }} /> 
                 </DialogContent>
                 <DialogActions>
