@@ -37,6 +37,8 @@ export default function(state = initialState, action) {
                 const audioElement = document.querySelector("video#localVideo")
                 audioElement.srcObject = action.stream3
 
+                // TODO: Fix janky double signal
+
                 store.dispatch(sendData(JSON.stringify({
                     type: "ANSWER",
                     content: {
@@ -63,11 +65,19 @@ export default function(state = initialState, action) {
                 store.dispatch(endCall())
             })
 
+            state.peer.on("end", _ => {
+                store.dispatch(endCall())
+            })
+
+            state.peer.on("error", _ => {
+                store.dispatch(endCall())
+            })
+
             state.peer.signal(action.offer)
 
             state.peer.addStream(action.stream3)
 
-            return { ...state, incomingCall: null, currentCall: 1, stream: action.stream3 }
+            return { ...state, incomingCall: null, currentCall: true, stream: action.stream3 }
         }
         case CALL_ACCEPTED: {
             state.peer.signal(action.answer.MessageContent.SignalData)

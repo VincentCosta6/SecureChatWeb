@@ -191,28 +191,18 @@ const Header = props => {
         }
     }
 
-    
-
     let name = ""
 
     if (props.history.location.pathname === "/messages") name = "Messages"
     else if (props.history.location.pathname === "/settings") name = "Settings"
 
     return (
-        <div style={{ ...containerStyle, backgroundColor: theme.palette.background.paper, borderBottom: "1px solid " + theme.palette.background.default }}>
+        <div style={{ ...containerStyle, backgroundColor: theme.palette.background.paper, boxShadow: "0px 0px 6px 1px gray", position: "sticky", top: 0 }}>
             <div style={{ display: "flex", alignItems: "center", width: 200, minWidth: 200 }}>
                 {_renderMenu()}
-                <h1 style={{ margin: "0 15px", color: theme.palette.text.primary, fontSize: "1.5rem" }}>{name}</h1>
+                { <h1 style={{ margin: "0 15px", color: theme.palette.text.primary, fontSize: "1.5rem" }}>{props.channelName || "Channels"}</h1> }
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    {<h3 style={{ color: theme.palette.text.primary, margin: "0px 10px 0px 0px" }}>{props.channelName || ""}</h3>}
-                    {
-                        /*props.channels.activeChannel !== -1 && 
-                        <AddPerson />*/
-                    }
-
-                </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Drawer open={drawerOpen} onClose={_ => setDrawer(false)}>
                     {sidePanel()}
                 </Drawer>

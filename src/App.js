@@ -28,6 +28,8 @@ function App() {
         else {
             history.push("/")
         }
+
+        window.scrollTo(0, 1)
     }, [])
 
     return (

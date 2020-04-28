@@ -72,7 +72,7 @@ const SidePanel = props => {
     }
 
     return (
-        <div className = {styles.container} style = {{ maxWidth: props.width && props.width <= 750 ? "" : "400px" }}>
+        <div className = {styles.container} style = {{ maxWidth: props.width && props.width <= 750 ? "" : "400px", borderRight: "1px solid black" }}>
             {_renderChannels()}
             
             <CreateChannel width = {props.width} />

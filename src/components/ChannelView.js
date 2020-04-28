@@ -24,6 +24,7 @@ const typingDurationSafety = 3000
 const ChannelView = props => {
     const theme = useTheme()
     const fileRef = useRef(null)
+    const inputRef = useRef(null)
 
     const [formMessage, setMessage] = useState("")
     const [sending, setSending] = useState(false)
@@ -217,8 +218,14 @@ const ChannelView = props => {
                         value = {formMessage} 
                         onChange = {event => setMessage(event.target.value)} 
                         onKeyDown = {handleKeyPress}
+                        ref = {inputRef}
                     />
-                    { <Button style = {{ height: 56, borderRadius: "0 4px 4px 0" }} color = "primary" variant = "contained" onClick = {_ => sendMessage(formMessage, "MESSAGE")} disabled = {sending}>Send</Button>}
+                    { 
+                        <Button style = {{ height: 56, borderRadius: "0 4px 4px 0" }} color = "primary" variant = "contained" onClick = {_ => {
+                            sendMessage(formMessage, "MESSAGE")
+                            inputRef.current.focus()
+                        }} disabled = {sending}>Send</Button>
+                    }
                 </div>
                 {/*<h6 style = {{ margin: 0, marginLeft: 15, color: theme.palette.text.primary, minHeight: 15 }}>{typingText}</h6>*/}
             </div>

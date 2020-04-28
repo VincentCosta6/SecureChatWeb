@@ -8,22 +8,22 @@ const useStyles = makeStyles({
     container: ({ props, theme }) => ({
         cursor: "pointer", 
         padding: 5,
-        margin: 5,
+        margin: 2,
         boxShadow: "none",
         backgroundColor: props.isCurrent ? theme.palette.primary.main : "", 
+        color: props.isCurrent ? theme.palette.primary.contrastText : theme.palette.text.primary,
+        transition: "backgroundColor 0.4s ease-in-out",
+        '&:hover': {
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText
+        }
     }),
     title: ({ props, theme }) => ({
         margin: "0 5px", 
-        color: props.isCurrent ? 
-                theme.palette.primary.contrastText : 
-                theme.palette.text.primary
     }),
     subtitle: ({ props, theme }) => ({
         margin: "0 0px", 
         marginLeft: 10, 
-        color: props.isCurrent ? 
-                theme.palette.primary.contrastText : 
-                theme.palette.text.primary
     })
 })
 
