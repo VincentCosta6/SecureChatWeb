@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react"
 
 import { connect } from "react-redux"
 import { withTheme, useTheme } from "@material-ui/core"
+import useLongPress from "../utility/useLongPress"
 
 import { sendData } from "../actions/socketActions"
 import { encrypt } from "../actions/channelActions"
@@ -26,9 +27,14 @@ const ChannelView = props => {
     const fileRef = useRef(null)
     const inputRef = useRef(null)
 
+    const sendButtonLongPress = useLongPress(_ => handleLongPress(), 500)
+
     const [formMessage, setMessage] = useState("")
     const [sending, setSending] = useState(false)
     const [loading] = useState(false)
+
+    const [optionsMenu, setOptionsMenu] = useState(false)
+    const [cancelNextPress, setCancelNextPress] = useState(false)
 
     const currentChannel = props.channels.channels[props.channels.activeChannel]
     const users = Object.keys(currentChannel.privateKeys).map(key => key)
@@ -185,7 +191,21 @@ const ChannelView = props => {
         
     }
 
-    console.log(typers)
+    const handleLongPress = _ => {
+        setCancelNextPress(true)
+        setOptionsMenu(true)
+    }
+
+    const handleRegularPress = _ => {
+        if(cancelNextPress) {
+            setCancelNextPress(false)
+            return
+        }
+
+        sendMessage(formMessage, "MESSAGE")
+        setOptionsMenu(false)
+        inputRef.current.focus()
+    }
 
     return (
         <div style = {{ flex: 1, display: "flex", flexDirection: "column", height: "100%", backgroundColor: theme.palette.background.default }}>
@@ -200,17 +220,6 @@ const ChannelView = props => {
             <Divider />
             <div style = {{ display: "flex", flexDirection: "column", justifyContent: "center", backgroundColor: theme.palette.background.default, marginTop: 5 }}>
                 <div style = {{ display: "flex", alignItems: "center", backgroundColor: theme.palette.background.default, margin: "5px" }}>
-                    { 
-                        /*<button>
-                            <FiPaperclip size = {16} />
-                            <input
-                                type="file"
-                                style={{ display: "none" }}
-                                ref = {fileRef}
-                                onChange = {fileChanged}
-                            />
-                        </button>*/
-                    }
                     <TextField 
                         style = {{ flex: 1, padding: 0, borderRadius: "4px 0 0 4px" }} 
                         label = {"Message " + currentChannel.Name}
@@ -220,12 +229,15 @@ const ChannelView = props => {
                         onKeyDown = {handleKeyPress}
                         inputRef={inputRef}
                     />
-                    { 
-                        <Button style = {{ height: 56, borderRadius: "0 4px 4px 0" }} color = "primary" variant = "contained" onClick = {_ => {
-                            sendMessage(formMessage, "MESSAGE")
-                            inputRef.current.focus()
-                        }} disabled = {sending}>Send</Button>
-                    }
+                    <Button 
+                        style = {{ height: 56, borderRadius: "0 4px 4px 0" }} 
+                        color = "primary" variant = "contained" disabled = {sending} 
+                        { ...sendButtonLongPress }
+                        onClick = {handleRegularPress}
+                        onBlur = {_ => setOptionsMenu(false)}
+                    >
+                        Send
+                    </Button>
                 </div>
                 {/*<h6 style = {{ margin: 0, marginLeft: 15, color: theme.palette.text.primary, minHeight: 15 }}>{typingText}</h6>*/}
             </div>

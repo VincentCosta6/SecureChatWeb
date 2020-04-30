@@ -27,7 +27,7 @@ export const loadChannels = user => dispatch => {
         .then(data => {
             let channels = data.data.results
 
-            channels = channels.map((channel, index) => decyptChannel(user, channel, index))
+            channels = channels.map((channel, index) => decryptChannel(user, channel, index))
 
             dispatch({
                 type: LOAD_CHANNELS,
@@ -38,7 +38,7 @@ export const loadChannels = user => dispatch => {
 }
 
 export const addChannel = (user, channel) => dispatch => {
-    const newChannel = decyptChannel(user, channel, -2)
+    const newChannel = decryptChannel(user, channel, -2)
 
     dispatch({
         type: ADD_CHANNEL,
@@ -95,7 +95,7 @@ export const clearData = _ => dispatch => {
     })
 }
 
-export function decyptChannel(user, channel, index) {
+export function decryptChannel(user, channel, index) {
     const myKey = channel.PrivateKeys[user._id]
 
     const myPrivate = JSON.parse(localStorage.getItem("generatedKeys")).privateKey
