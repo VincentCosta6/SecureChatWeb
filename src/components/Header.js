@@ -117,14 +117,26 @@ const Header = props => {
             return isActive ? theme.palette.primary.contrastText : ""
         }
 
+        const _renderChannelList = _ => {
+            if(width <= 750 && isActiveMessages) {
+                return (
+                    <>
+                        <h3 style = {{ marginLeft: 15 }}>Channels</h3>
+                        <SidePanel width = {width} setDrawer = {setDrawer} />
+
+                        <Divider />
+                        <Divider />
+                        
+                        <h3 style = {{ marginLeft: 15 }}>Menu</h3>
+                    </>
+                )
+            }
+        }
+
         const _renderMenu = _ => {
             return (
                 <>
-                    { width <= 750 && isActiveMessages && <h3 style = {{ marginLeft: 15 }}>Channels</h3> }
-                    { width <= 750 && isActiveMessages && <SidePanel width = {width} setDrawer = {setDrawer} /> }
-                    <Divider />
-                    <Divider />
-                    { width <= 750 && isActiveMessages && <h3 style = {{ marginLeft: 15 }}>Menu</h3> }
+                    { _renderChannelList() }
                     <List>
                         <ListItem
                             button={!isActiveMessages}

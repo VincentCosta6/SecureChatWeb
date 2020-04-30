@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 
 import { connect } from "react-redux"
-import { withTheme, useTheme, makeStyles } from "@material-ui/core"
+import { withTheme, useTheme, makeStyles, CircularProgress } from "@material-ui/core"
 
 import { loadChannels } from "../actions/channelActions"
 
@@ -20,8 +20,10 @@ const useStyles = makeStyles({
         flex: 1, 
         display: "flex", 
         flexDirection: "column", 
-        height: "100%", 
-        backgroundColor: theme.palette.background.default,
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center",
 
         "& div": {
             textAlign: "center", 
@@ -66,26 +68,28 @@ export const Container = props => {
         if(loading || notIn || click) {
             let message = ""
 
-            if(loading) message = "Decrypting channels..."
-            else if(notIn) return(
-                <div className = {styles.viewContainer}>
-                    <div>
-                        <h1>You are not in any channels!</h1>
-                        <CreateChannel />
+            if(loading) {
+                message = <CircularProgress size = {23} color = "primary" />
+            }
+            else if(notIn) {
+                return(
+                    <div className = {styles.viewContainer}>
+                        <div>
+                            <h1>You are not in any channels!</h1>
+                            <CreateChannel />
+                        </div>
                     </div>
-                </div>
-            )
-            else if(click && width > 750) message = "Click on a channel"
-            else if(click) return (
-                <>
-                    <h1 style = {{ marginLeft: 15 }}>Channels</h1>
-                    <SidePanel width = {width} />
-                </>
-            )
-
+                )
+            }
+            else if(click && width > 750) {
+                message = <h1>Click on a channel</h1>
+            }
+            else if(click) {
+                return <SidePanel width = {width} />
+            }
             return (
                 <div className = {styles.viewContainer}>
-                    <h1 style = {{ marginLeft: 15 }}>{message}</h1>
+                    {message}
                 </div>
             )
         }
