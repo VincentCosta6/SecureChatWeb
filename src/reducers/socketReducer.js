@@ -1,11 +1,20 @@
-import { OPEN_WEBSOCKET, SEND_DATA, CLOSE_WEBSOCKET } from "../actions/socketActions"
+import { OPEN_WEBSOCKET, SEND_DATA, CLOSE_WEBSOCKET, ADD_MESSAGE_TO_QUEUE, OPENING_WEBSOCKET, WEBSOCKET_FAILED, WEBSOCKET_SUCCESS } from "../actions/socketActions"
 
 const initialState = {
-    websocket: null
+    websocket: null,
+    opening: false,
+    failed: false,
+    queue: []
 }
 
 export default function(state = initialState, action) {
     switch(action.type) {
+        case OPENING_WEBSOCKET:
+            return { ...state, opening: true, failed: false }
+        case WEBSOCKET_FAILED:
+            return { ...state, opening: false, failed: true }
+        case WEBSOCKET_SUCCESS:
+            return { ...state, opening: false, failed: false }
         case OPEN_WEBSOCKET: 
             return { ...state, websocket: action.websocket }
         case SEND_DATA:
@@ -22,6 +31,8 @@ export default function(state = initialState, action) {
             }
             
             return { ...state, websocket: null }
+        case ADD_MESSAGE_TO_QUEUE:
+            return { ...state, queue: [ ...state.queue, action.message ] }
         default: 
             return state
     }

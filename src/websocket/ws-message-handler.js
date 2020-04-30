@@ -1,6 +1,7 @@
 import store from "../store"
 
 import { addMessage, addChannel, addTyper, removeTyper, addUser, loadChannels } from "../actions/channelActions"
+import { addMessageToQueue } from "../actions/socketActions"
 import { callIncoming, callAccepted } from "../actions/callActions"
 
 const timeouts = {}
@@ -22,6 +23,11 @@ export const handleMessage = message => {
 
     switch(message.MessageType) {
         case "NEW_MESSAGE":
+            if(!store.getState().channels.CHANNELS_LOADED) {
+                store.dispatch(addMessageToQueue(message.MessageContent))
+                return
+            }
+
             store.dispatch(addMessage(message.MessageContent))
 
             if(isAway) {

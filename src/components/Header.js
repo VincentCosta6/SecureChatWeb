@@ -6,7 +6,7 @@ import { withTheme, useTheme } from "@material-ui/core"
 
 import { logout } from "../actions/userActions"
 import { setServerStatus } from "../actions/connectionActions"
-import { closeWebsocket, openWebsocket } from "../actions/socketActions"
+import { closeWebsocket } from "../actions/socketActions"
 import { clearData } from "../actions/channelActions"
 
 
@@ -69,7 +69,7 @@ const Header = props => {
         setWidth(window.innerWidth)
     }
 
-    useEffect(_ => {
+    /*useEffect(_ => {
         pingServer(props)
         clearInterval(interval)
         interval = setInterval(_ => pingServer(props), 10000)
@@ -79,12 +79,6 @@ const Header = props => {
             interval = null
         }
     }, [props])
-
-    useEffect(_ => {
-        if(props.user.token && props.user.token.length > 10 && !props.websocket.websocket) {
-            props.openWebsocket(props.user.token)
-        }
-    }, [props.connection.serverConnected, props.user, props.user.token])
 
     const pingServer = props => {
         if(!props.connection.websocketConnected)
@@ -103,7 +97,7 @@ const Header = props => {
                         props.setServerStatus(false)
                     }
                 })
-    }
+    }*/
 
     const sidePanel = _ => {
         const isActiveMessages = props.history.location.pathname === "/messages"
@@ -208,6 +202,10 @@ const Header = props => {
     if (props.history.location.pathname === "/messages") name = "Messages"
     else if (props.history.location.pathname === "/settings") name = "Settings"
 
+    if(!props.connection.websocketConnected || !props.channels.CHANNELS_LOADED) {
+        return <></>
+    }
+
     return (
         <div style={{ ...containerStyle, backgroundColor: theme.palette.background.paper, boxShadow: "0px 0px 6px 1px gray", position: "sticky", top: 0 }}>
             <div style={{ display: "flex", alignItems: "center", width: 200, minWidth: 200 }}>
@@ -220,11 +218,11 @@ const Header = props => {
                 </Drawer>
                 <div style={{ display: "flex" }}>
                     <CallView />
-                    {
+                    {/*
                         props.connection.serverConnected ?
                             <FaServer color={theme.palette.primary.main} size={23} title="Server is running" /> :
                             <FaServer color="red" size={23} title="Server is down" />
-                    }
+                    */}
                     <h2 style={{ margin: "0 5px" }}> </h2>
                     {
                         props.connection.websocketConnected ?
@@ -255,7 +253,7 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps, { logout, setServerStatus, closeWebsocket, openWebsocket, clearData })(withRouter(withTheme(Header)))
+export default connect(mapStateToProps, { logout, setServerStatus, closeWebsocket, clearData })(withRouter(withTheme(Header)))
 
 const containerStyle = {
     display: "flex",

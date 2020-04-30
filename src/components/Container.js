@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 
 import { connect } from "react-redux"
 import { withTheme, useTheme, makeStyles, CircularProgress } from "@material-ui/core"
+import useInterval from "../utility/useInterval"
 
 import { loadChannels } from "../actions/channelActions"
 
@@ -9,6 +10,8 @@ import SidePanel from "./SidePanel"
 import ChannelView from "./ChannelView"
 
 import CreateChannel from "./CreateChannel"
+
+import { openWebsocket } from "../actions/socketActions"
 
 const useStyles = makeStyles({
     container: {
@@ -39,6 +42,8 @@ export const Container = props => {
 
     const [width, setWidth] = useState(window.innerWidth)
 
+    const [retry, setRetry] = useState(5)
+
     useEffect(_ => {
         window.addEventListener("resize", updateWindowWidth)
 
@@ -47,13 +52,30 @@ export const Container = props => {
         }
     }, [])
 
+    useInterval(_ => {
+        if(retry === 1) {
+            props.openWebsocket(props.user.token)
+            setRetry(10)
+        }
+        else {
+            setRetry(retry - 1)
+        }
+    }, !props.websocket.opening && props.websocket.failed ? 1000 : null)
+
+    useEffect(_ => {
+        if(props.user.token && props.user.token.length > 10 && !props.websocket.websocket) {
+            props.openWebsocket(props.user.token)
+        }
+    }, [props.connection.websocketConnected, props.user, props.user.token])
+
     useEffect(_ => {
         reload()
-    }, [props.connection.serverConnected])
+    }, [props.connection.serverConnected, props.connection.websocketConnected])
 
     const reload = _ => {
-        if (props.channels.channels.length === 0)
+        if(props.connection.websocketConnected) {
             props.loadChannels(props.user)
+        }
     }
 
     const updateWindowWidth = _ => {
@@ -98,10 +120,40 @@ export const Container = props => {
         }
     }
 
+    const _renderPage = _ => {
+        if(props.websocket.opening || props.channels.LOADING_CHANNELS || props.websocket.failed) {
+            let message = ""
+
+            if(props.websocket.opening) message = "Connecting"
+            else if(props.channels.LOADING_CHANNELS) {
+                if(props.channels.DECRYPTING) {
+                    message = "Decrypting messages"
+                }
+                else message = "Fetching messages"
+            }
+            else if(props.websocket.failed) message = "Failed to connect"
+
+            return (
+                <div className = {styles.viewContainer}>
+                    <div>
+                        { !props.websocket.failed && <CircularProgress size = {23} /> }
+                        <h1>{message}</h1>
+                        { !props.websocket.opening && props.websocket.failed && <h3>Trying again in {retry}</h3> }
+                    </div>
+                </div>
+            )  
+        }
+        return (
+            <div className = {styles.container} style = {{ flexDirection: width <= 750 ? "column" : "" }}>
+                { width > 750 && <SidePanel width = {width} /> }
+                { _renderContent() }
+            </div>
+        )
+    }
+
     return (
         <div className = {styles.container} style = {{ flexDirection: width <= 750 ? "column" : "" }}>
-            { width > 750 && <SidePanel width = {width} /> }
-            { _renderContent() }
+            { _renderPage() }
         </div>
     )
 }
@@ -110,8 +162,9 @@ const mapStateToProps = state => {
     return {
         user: state.user,
         channels: state.channels,
-        connection: state.connection
+        connection: state.connection,
+        websocket: state.websocket
     }
 }
 
-export default connect(mapStateToProps, { loadChannels })(withTheme(Container))
+export default connect(mapStateToProps, { loadChannels, openWebsocket })(withTheme(Container))

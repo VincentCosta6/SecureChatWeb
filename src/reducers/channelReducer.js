@@ -1,17 +1,21 @@
-import { LOAD_CHANNELS, ADD_CHANNEL, DELETE_CHANNEL, SET_ACTIVE, ADD_MESSAGE, SET_LOAD_CHANNELS, ADD_TYPER, REMOVE_TYPER, CLEAR_DATA } from "../actions/channelActions"
+import { LOAD_CHANNELS, DECRYPTING, ADD_CHANNEL, DELETE_CHANNEL, SET_ACTIVE, ADD_MESSAGE, SET_LOAD_CHANNELS, ADD_TYPER, REMOVE_TYPER, CLEAR_DATA } from "../actions/channelActions"
 
 import { decrypt } from "../actions/channelActions"
 
 const initialState = {
     channels: [],
     activeChannel: -1,
-    LOADING_CHANNELS: false
+    LOADING_CHANNELS: false,
+    CHANNELS_LOADED: false,
+    DECRYPTING: false
 }
 
 export default function(state = initialState, action) {
     switch(action.type) {
+        case DECRYPTING:
+            return { ...state, DECRYPTING: true }
         case LOAD_CHANNELS: 
-            return { ...state, channels: action.channels, LOADING_CHANNELS: false }
+            return { ...state, channels: action.channels, LOADING_CHANNELS: false, CHANNELS_LOADED: true, DECRYPTING: false }
         case ADD_CHANNEL:
             const newChannel = {
                 ...action.channel,

@@ -2,10 +2,11 @@ import { authReq } from "../axios-auth"
 
 import crypto from "crypto-browserify"
 
-import forge, { cipher } from "node-forge"
-const RSA = forge.pki.rsa
+import forge from "node-forge"
 
 export const LOAD_CHANNELS = "LOAD_CHANNELS"
+export const DECRYPTING = "DECRYPTING"
+
 export const ADD_CHANNEL = "ADD_CHANNEL"
 export const DELETE_CHANNEL = "DELETE_CHANNEL"
 export const SET_ACTIVE = "SET_ACTIVE"
@@ -25,15 +26,21 @@ export const loadChannels = user => dispatch => {
 
     authReq(localStorage.getItem("token")).get("https://servicetechlink.com/channels/mine")
         .then(data => {
-            let channels = data.data.results
-
-            channels = channels.map((channel, index) => decryptChannel(user, channel, index))
 
             dispatch({
-                type: LOAD_CHANNELS,
-                channels,
-                isLoading: false
+                type: DECRYPTING
             })
+
+            setTimeout(_ => {
+                const channels = data.data.results.map((channel, index) => decryptChannel(user, channel, index))
+
+                // merge websocket queue messages
+
+                dispatch({
+                    type: LOAD_CHANNELS,
+                    channels
+                })
+            }, 50)
         })
 }
 
