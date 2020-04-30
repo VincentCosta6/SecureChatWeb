@@ -1,3 +1,5 @@
+import store from "../store"
+
 
 import { WEBSOCKET_STATUS } from "./connectionActions"
 
@@ -7,6 +9,8 @@ import {
     WebsocketError, 
     WebsocketClose 
 } from "../websocket/ws-redux-connect"
+
+import { clearData } from "../actions/channelActions"
 
 export const OPENING_WEBSOCKET = "OPENING_WEBSOCKET"
 export const WEBSOCKET_FAILED = "WEBSOCKET_FAILED"
@@ -48,6 +52,8 @@ export const openWebsocket = token => dispatch => {
         dispatch({
             type: WEBSOCKET_FAILED
         })
+
+        store.dispatch(clearData())
     }
 
     client.onclose = ev => {
@@ -60,6 +66,8 @@ export const openWebsocket = token => dispatch => {
             type: WEBSOCKET_STATUS,
             status: false
         })
+
+        store.dispatch(clearData())
     }
 
     dispatch({

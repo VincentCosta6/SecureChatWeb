@@ -73,7 +73,7 @@ export const Container = props => {
     }, [props.connection.serverConnected, props.connection.websocketConnected])
 
     const reload = _ => {
-        if(props.connection.websocketConnected) {
+        if(props.connection.websocketConnected && props.channels.channels.length === 0) {
             props.loadChannels(props.user)
         }
     }
