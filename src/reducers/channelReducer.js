@@ -32,12 +32,7 @@ export default function(state = initialState, action) {
         case ADD_MESSAGE:
             const newChannels = [...state.channels]
 
-            for(let i in newChannels) {
-                if(newChannels[i]._id === action.message.ChannelID) {
-                    action.message.Encrypted = decrypt(action.message.Encrypted, newChannels[i].AESKey)
-                    newChannels[i].messages.push(action.message)
-                }
-            }
+            newChannels[action.channel_index].messages.push(action.message)
 
             return { ...state, channels: newChannels }
         case ADD_TYPER: {

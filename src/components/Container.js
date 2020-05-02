@@ -5,6 +5,7 @@ import { withTheme, useTheme, makeStyles, CircularProgress } from "@material-ui/
 import useInterval from "../utility/useInterval"
 
 import { loadChannels } from "../actions/channelActions"
+import { openIndexDB } from "../actions/indexDBActions"
 
 import SidePanel from "./SidePanel"
 import ChannelView from "./ChannelView"
@@ -63,10 +64,14 @@ export const Container = props => {
     }, !props.websocket.opening && props.websocket.failed ? 1000 : null)
 
     useEffect(_ => {
-        if(props.user.token && props.user.token.length > 10 && !props.websocket.websocket) {
+        props.openIndexDB()
+    }, [])
+
+    useEffect(_ => {
+        if(props.user.token && props.user.token.length > 10 && !props.websocket.websocket && props.indexdb.db) {
             props.openWebsocket(props.user.token)
         }
-    }, [props.connection.websocketConnected, props.user, props.user.token])
+    }, [props.connection.websocketConnected, props.user, props.user.token, props.indexdb.db])
 
     useEffect(_ => {
         reload()
@@ -121,10 +126,12 @@ export const Container = props => {
     }
 
     const _renderPage = _ => {
-        if(props.websocket.opening || props.channels.LOADING_CHANNELS || props.websocket.failed) {
+        if(props.websocket.opening || props.channels.LOADING_CHANNELS || props.websocket.failed || props.indexdb.opening || props.indexdb.failed) {
             let message = ""
 
-            if(props.websocket.opening) message = "Connecting"
+            if(props.indexdb.opening) message = "Connecting IndexDB"
+            else if(props.indexdb.failed) message = "IndexDB failed, did you deny the permission?"
+            else if(props.websocket.opening) message = "Connecting"
             else if(props.channels.LOADING_CHANNELS) {
                 if(props.channels.DECRYPTING) {
                     message = "Decrypting messages"
@@ -163,8 +170,9 @@ const mapStateToProps = state => {
         user: state.user,
         channels: state.channels,
         connection: state.connection,
-        websocket: state.websocket
+        websocket: state.websocket,
+        indexdb: state.indexdb
     }
 }
 
-export default connect(mapStateToProps, { loadChannels, openWebsocket })(withTheme(Container))
+export default connect(mapStateToProps, { loadChannels, openWebsocket, openIndexDB })(withTheme(Container))

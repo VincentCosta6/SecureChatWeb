@@ -5,6 +5,7 @@ import { withTheme, useTheme } from "@material-ui/core"
 
 import axios, { authReq } from "../axios-auth"
 import { randomBytes } from "crypto"
+import { dbQueryPromise } from "../utility/indexDBWrappers"
 
 import forge from "node-forge"
 
@@ -65,24 +66,52 @@ const CreateChannel = props => {
         setErrorText("")
         setRequestLoading(true)
 
-        const secureString = randomBytes(64).toString("hex")
+        function buf2hex(buffer) { // buffer is an ArrayBuffer
+            return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
+        }
+        function str2ab(str) {
+            const buf = new ArrayBuffer(str.length);
+            const bufView = new Uint8Array(buf);
+            for (let i = 0, strLen = str.length; i < strLen; i++) {
+                bufView[i] = str.charCodeAt(i);
+            }
+            return buf;
+        }
+
+        const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"])
+
+        const exported = await crypto.subtle.exportKey("raw", key)
+
+        console.log(buf2hex(exported))
+
+        const keyStore = props.indexdb.db.transaction(["keystore"]).objectStore("keystore")
+        const request = keyStore.get(props.user.username)
+
+        const result = await dbQueryPromise(request)
+
+        const value = result.target.result
+
+        const myWrappedKey = await crypto.subtle.wrapKey("raw", key, value.keys.publicKey, "RSA-OAEP")
+
+        console.log(buf2hex(myWrappedKey))
 
         const privateKeys = {}
 
-        const { publicKey, privateKey } = JSON.parse(localStorage.getItem("generatedKeys"))
-        const myConvertedKey = forge.pki.publicKeyFromPem(publicKey)
+        privateKeys[props.user._id] = buf2hex(myWrappedKey)
 
-        for (let user of selectedUsers) {
-            const convertedKey = forge.pki.publicKeyFromPem(user.publicKey)
+        await Promise.all(selectedUsers.map(async user => {
+            const pemHeader = "-----BEGIN PUBLIC KEY-----";
+            const pemFooter = "-----END PUBLIC KEY-----";
+            const pemContents = user.publicKey.substring(pemHeader.length + 1, user.publicKey.length - pemFooter.length - 1);
 
-            const result = forge.util.encode64(convertedKey.encrypt(secureString, 'RSA-OAEP'))
+            const userKey = await crypto.subtle.importKey("spki", str2ab(atob(pemContents)), { name: "RSA-OAEP", hash: "SHA-256" }, true, ["wrapKey"])
 
-            privateKeys[user._id] = result
-        }
+            const userWrappedKey = await crypto.subtle.wrapKey("raw", key, userKey, "RSA-OAEP")
 
-        const result = forge.util.encode64(myConvertedKey.encrypt(secureString, 'RSA-OAEP'))
+            privateKeys[user._id] = buf2hex(userWrappedKey)
+        }))
 
-        privateKeys[JSON.parse(localStorage.getItem("user"))._id] = result
+        console.log(privateKeys)
 
         const channelObj = {
             name: channelName,
@@ -219,7 +248,8 @@ const CreateChannel = props => {
 
 const mapStateToProps = state => {
     return {
-        user: state.user
+        user: state.user,
+        indexdb: state.indexdb
     }
 }
 

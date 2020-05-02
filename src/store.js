@@ -12,6 +12,7 @@ import connectionReducer from "./reducers/connectionReducer"
 import socketReducer from "./reducers/socketReducer"
 import themeReducer from "./reducers/themeReducer"
 import callReducer from "./reducers/callReducer"
+import indexDBReducer from "./reducers/indexDBReducer"
 
 const rootReducer = combineReducers({
     user: userReducer,
@@ -19,7 +20,8 @@ const rootReducer = combineReducers({
     connection: connectionReducer,
     theme: themeReducer,
     websocket: socketReducer,
-    call: callReducer
+    call: callReducer,
+    indexdb: indexDBReducer
 })
 
 const initialState = {}

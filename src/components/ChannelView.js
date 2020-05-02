@@ -74,7 +74,7 @@ const ChannelView = props => {
         document.getElementById("message-scroll-here").scrollTop = document.getElementById("message-scroll-here").scrollHeight
     }, [currentChannel.messages.length])
 
-    const sendMessage = (content, type) => {
+    const sendMessage = async (content, type) => {
         if(content === "") {
             return
         }
@@ -83,7 +83,7 @@ const ChannelView = props => {
 
         authReq(localStorage.getItem("token")).post("https://servicetechlink.com/message/create", JSON.stringify({
             channelID: currentChannel._id,
-            message: encrypt(JSON.stringify({
+            message: await encrypt(JSON.stringify({
                 content,
                 sender: props.user.username,
                 type

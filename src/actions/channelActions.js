@@ -1,8 +1,9 @@
+import store from "../store"
+
+import { dbQueryPromise } from "../utility/indexDBWrappers"
+
 import { authReq } from "../axios-auth"
-
-import crypto from "crypto-browserify"
-
-import forge from "node-forge"
+import { AES } from "crypto-js"
 
 export const LOAD_CHANNELS = "LOAD_CHANNELS"
 export const DECRYPTING = "DECRYPTING"
@@ -25,22 +26,22 @@ export const loadChannels = user => dispatch => {
     })
 
     authReq(localStorage.getItem("token")).get("https://servicetechlink.com/channels/mine")
-        .then(data => {
+        .then(async data => {
 
             dispatch({
                 type: DECRYPTING
             })
 
-            setTimeout(_ => {
-                const channels = data.data.results.map((channel, index) => decryptChannel(user, channel, index))
+            const channels = await Promise.all(data.data.results.map(async (channel, index) => await decryptChannel(user, channel, index)))
 
-                // merge websocket queue messages
+            console.log("here")
 
-                dispatch({
-                    type: LOAD_CHANNELS,
-                    channels
-                })
-            }, 50)
+            // merge websocket queue messages
+
+            dispatch({
+                type: LOAD_CHANNELS,
+                channels
+            })
         })
 }
 
@@ -67,10 +68,27 @@ export const setActive = (channelIndex) => dispatch => {
     })
 }
 
-export const addMessage = (message) => dispatch => {
+export const addMessage = (message) => async dispatch => {
+    let channel_index = -1
+
+    const channels = store.getState().channels.channels
+
+    for(let i in channels) {
+        if(channels[i]._id === message.ChannelID) {
+            channel_index = i
+        }
+    }
+
+    console.log(message)
+
+    const decrypted = await decrypt(message.Encrypted, store.getState().channels.channels[channel_index].AESKey)
+
+    message.Encrypted = decrypted
+
     dispatch({
         type: ADD_MESSAGE,
-        message
+        message,
+        channel_index
     })
 }
 
@@ -102,77 +120,138 @@ export const clearData = _ => dispatch => {
     })
 }
 
-export function decryptChannel(user, channel, index) {
+export async function decryptChannel(user, channel, index) {
     const myKey = channel.PrivateKeys[user._id]
 
-    const myPrivate = JSON.parse(localStorage.getItem("generatedKeys")).privateKey
-    const myParsedKey = forge.pki.privateKeyFromPem(myPrivate)
+    const keyStore = store.getState().indexdb.db.transaction(["keystore"]).objectStore("keystore")
+    const request = keyStore.get(store.getState().user.username)
 
-    const ChannelKey = myParsedKey.decrypt(forge.util.decode64(myKey), "RSA-OAEP")
+    try {
+        const event = await dbQueryPromise(request)
 
-    let decryptedMessages = []
+        const privateKey = event.target.result.keys.privateKey
 
-    if(channel.Messages) {
-        decryptedMessages = channel.Messages.map(message => {
-            return { ...message, Encrypted: decrypt(message.Encrypted, ChannelKey) }
-        })
+        console.log(myKey)
+
+        const encoder = new TextEncoder()
+
+        const unwrapped = await crypto.subtle.unwrapKey("raw", Buffer.from(myKey, "hex"), privateKey, "RSA-OAEP", { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"] )
+
+        let decryptedMessages = []
+
+        if (channel.Messages) {
+            decryptedMessages = await Promise.all(channel.Messages.map(async message => {
+                return { ...message, Encrypted: await decrypt(message.Encrypted, unwrapped) }
+            }))
+        }
+
+        console.log(channel)
+
+        return {
+            _id: channel._id,
+            Name: channel.Name,
+            privateKeys: channel.PrivateKeys,
+            AESKey: unwrapped,
+            index,
+            messages: decryptedMessages,
+            typers: {}
+        }
     }
-    
-    return {
-        _id: channel._id,
-        Name: channel.Name,
-        privateKeys: channel.PrivateKeys,
-        AESKey: ChannelKey,
-        index,
-        messages: decryptedMessages,
-        typers: {}
+    catch (e) {
+        console.error(e)
     }
+
+
 }
 
-export function decrypt(message, AESKey) {
+function _base64ToArrayBuffer(base64) {
+    var binary_string = window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+
+function _arrayBufferToBase64( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return window.btoa( binary );
+}
+
+// AESKey is a base64 string
+export async function decrypt(message, AESKey) {
+    const decoder = new TextDecoder()
+
     const bData = Buffer.from(message, "base64")
 
     // convert data to buffers
-    const salt = bData.slice(0, 64)
-    const iv = bData.slice(64, 80)
-    const tag = bData.slice(80, 96)
-    const text = bData.slice(96)
+    const iv = bData.slice(0, 16)
+    const salt = bData.slice(16, 80)
+    const text = bData.slice(80)
 
-    // derive key using; 32 byte key length
-    const key = crypto.pbkdf2Sync(AESKey, salt , 2145, 32, "sha512")
+    const keyMaterial = await getKeyMaterial(AESKey)
+    const key = await deriveKeyWithSalt(keyMaterial, salt)
 
-    // AES 256 GCM Mode
-    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv)
-    decipher.setAuthTag(tag)
+    const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        text
+    )
 
-    // encrypt the given text
-    const decrypted = decipher.update(text, "binary", "utf8") + decipher.final("utf8")
-
-    return decrypted
+    return decoder.decode(decrypted)
 }
 
-export function encrypt(text, masterkey){
-    // random initialization vector
-    const iv = crypto.randomBytes(16)
+// masterkey is a utf-8 string
+export async function encrypt(text, masterkey) {
+    const encoder = new TextEncoder()
 
-    // random salt
-    const salt = crypto.randomBytes(64)
+    const iv = window.crypto.getRandomValues(new Uint8Array(16))
+    const salt = window.crypto.getRandomValues(new Uint8Array(64))
 
-    // derive encryption key: 32 byte key length
-    // in assumption the masterkey is a cryptographic and NOT a password there is no need for
-    // a large number of iterations. It may can replaced by HKDF
-    // the value of 2145 is randomly chosen!
-    const key = crypto.pbkdf2Sync(masterkey, salt, 2145, 32, "sha512")
+    const keyMaterial = await getKeyMaterial(masterkey)
+    const key = await deriveKeyWithSalt(keyMaterial, salt)
 
-    // AES 256 GCM Mode
-    const cipher = crypto.createCipheriv("aes-256-gcm", key, iv)
+    const encrypted = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        encoder.encode(text)
+    )
 
-    // encrypt the given text
-    const encrypted = Buffer.concat([cipher.update(text, "utf8"), cipher.final()])
+    return Buffer.concat([Buffer.from(iv), Buffer.from(salt), Buffer.from(encrypted)]).toString("base64")
+}
 
-    // extract the auth tag
-    const tag = cipher.getAuthTag()
+async function getKeyMaterial(AESKey) {
+    let enc = new TextEncoder()
 
-    // generate output
-    return Buffer.concat([salt, iv, tag, encrypted]).toString("base64")
+    const keyString = await crypto.subtle.exportKey("raw", AESKey)
+
+    return window.crypto.subtle.importKey(
+        "raw",
+        enc.encode(keyString),
+        { name: "PBKDF2" },
+        false,
+        ["deriveBits", "deriveKey"]
+    )
+}
+
+function deriveKeyWithSalt(keyMaterial, salt) {
+    return window.crypto.subtle.deriveKey(
+        {
+            "name": "PBKDF2",
+            salt: salt,
+            "iterations": 100000,
+            "hash": "SHA-512"
+        },
+        keyMaterial,
+        { "name": "AES-GCM", "length": 256 },
+        true,
+        ["encrypt", "decrypt"]
+    )
 }

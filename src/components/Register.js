@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 
 import { connect } from "react-redux"
 import { setUser } from "../actions/userActions"
+import { openIndexDB } from "../actions/indexDBActions"
 
 import { withRouter } from 'react-router'
 
@@ -10,6 +11,9 @@ import { withTheme, useTheme, makeStyles, styled } from "@material-ui/core"
 import { TextField, Button, CircularProgress, LinearProgress } from "@material-ui/core"
 
 import ConfirmComp from "./ConfirmComp"
+
+import { dbPromise } from "../utility/indexDBWrappers"
+import { spkiToPEM } from "../utility/pemConversion"
 
 import axios from "axios"
 
@@ -54,13 +58,13 @@ const Register = props => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
 
-    const [keys, setKeys] = useState({ publicKey: "", privateKey: "" })
-
     const [percentage, setPercentage] = useState(0)
 
     useEffect(_ => {
-        setKeys({ publicKey: "", privateKey: "" })
+        props.openIndexDB()
+    }, [])
 
+    useEffect(_ => {
         return _ => {
             clearInterval(interval)
             interval = null
@@ -108,29 +112,43 @@ const Register = props => {
         setStatus("Generating RSA keypair locally...")
         setGenerating(true)
 
-        const storage = localStorage.getItem("generatedKeys")
+            crypto.subtle.generateKey({
+                name: "RSA-OAEP",
+                modulusLength: 4096,
+                publicExponent: new Uint8Array([ 1, 0, 1 ]),
+                hash: "SHA-256"
+            }, true, ["encrypt", "decrypt", "wrapKey", "unwrapKey"])
+                .then(keypair => {
+                    console.log(props)
 
-        if(!storage || storage.length < 10) {
-            RSA.generateKeyPair({ bits: 4096, workers: -1 }, function(err, keypair) {
-                const privateK = forge.pki.privateKeyToPem(keypair.privateKey)
-                const publicK = forge.pki.publicKeyToPem(keypair.publicKey)
+                    const transaction = props.indexdb.db.transaction(["keystore"], "readwrite")
 
-                localStorage.setItem("generatedKeys", JSON.stringify({ privateKey: privateK, publicKey: publicK }))
+                    dbPromise(transaction)
+                        .then(event => {
+                            console.log(event)
+                        })
+                        .catch(err => {
+                            console.error(err)
+                        })
 
-                setGenerating(false)
+                    const keystoreObjectStore = transaction.objectStore("keystore")
+                    keystoreObjectStore.put({ username: form.username, keys: keypair })
 
-                handleSignup(publicK, privateK)
-            })
-        }
-        else {
-            const keypair = JSON.parse(localStorage.getItem("generatedKeys"))
-            const publicK = keypair.publicKey
-            const privateK = keypair.privateKey
+                    setGenerating(false)
 
-            setGenerating(false)
+                    crypto.subtle.exportKey("spki", keypair.publicKey)
+                        .then(keydata => {
+                            handleSignup(JSON.stringify(spkiToPEM(keydata)))
+                        })
+                        .catch(err => {
+                            console.error(err)
+                        })
 
-            handleSignup(publicK, privateK)
-        }
+                    
+                })
+                .catch(err => {
+                    console.error(err)
+                })
     }
 
     const initLoadingInterval = _ => {
@@ -149,7 +167,7 @@ const Register = props => {
         }, 20)
     }
 
-    const sendSignup = (publicKey, privateKey) => {
+    const sendSignup = publicKey => {
         axios.post("https://servicetechlink.com/register", JSON.stringify({
             username: form.username,
             password: form.password,
@@ -160,23 +178,24 @@ const Register = props => {
                 "Accept": "application/json"
             }
         })
-            .then(data => handleSuccess(data, privateKey))
+            .then(data => handleSuccess(data))
             .catch(handleError)
     }
 
-    const handleSignup = (publicKey, privateKey) => {
+    const handleSignup = publicKey => {
         setLoading(true)
         setError("")
         setStatus("")
 
         initLoadingInterval()
 
-        sendSignup(publicKey, privateKey)
+        sendSignup(publicKey)
     }
 
-    const handleSuccess = (data, privateKey) => {
+    const handleSuccess = data => {
         clearInterval(interval)
         props.setUser(data.data.user, data.data.token, form.password)
+
         localStorage.setItem("user", JSON.stringify(data.data.user))
         localStorage.setItem("token", data.data.token)
 
@@ -184,6 +203,7 @@ const Register = props => {
     }
 
     const handleError = err => {
+        console.error(err)
         setLoading(false)
         clearInterval(interval)
         setOpen(false)
@@ -258,11 +278,11 @@ const Register = props => {
 
 const mapStateToProps = state => {
     return {
-
+        indexdb: state.indexdb
     }
 }
 
-export default connect(mapStateToProps, { setUser })(withRouter(withTheme(Register)))
+export default connect(mapStateToProps, { setUser, openIndexDB })(withRouter(withTheme(Register)))
 
 const mainContainerStyle = {
     display: "flex",
@@ -290,62 +310,3 @@ const RegisterButton = styled(Button)({
 const LoginLink = styled(Button)({
     fontSize: 12
 })
-
-function arrayBufferToBase64(arrayBuffer) {
-    var byteArray = new Uint8Array(arrayBuffer);
-    var byteString = '';
-    for(var i=0; i < byteArray.byteLength; i++) {
-        byteString += String.fromCharCode(byteArray[i]);
-    }
-    var b64 = window.btoa(byteString);
-
-    return b64;
-}
-
-function addNewLines(str) {
-    var finalString = '';
-    while(str.length > 0) {
-        finalString += str.substring(0, 64) + '\n';
-        str = str.substring(64);
-    }
-
-    return finalString;
-}
-
-function toPem(privateKey) {
-    var b64 = addNewLines(arrayBufferToBase64(privateKey));
-    var pem = "-----BEGIN PRIVATE KEY-----\n" + b64 + "-----END PRIVATE KEY-----";
-    
-    return pem;
-}
-
-function spkiToPEM(keydata){
-    var keydataS = arrayBufferToString(keydata);
-    var keydataB64 = window.btoa(keydataS);
-    var keydataB64Pem = formatAsPem(keydataB64);
-    return keydataB64Pem;
-}
-
-function arrayBufferToString( buffer ) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode( bytes[ i ] );
-    }
-    return binary;
-}
-
-
-function formatAsPem(str) {
-    var finalString = '-----BEGIN PUBLIC KEY-----\n';
-
-    while(str.length > 0) {
-        finalString += str.substring(0, 64) + '\n';
-        str = str.substring(64);
-    }
-
-    finalString = finalString + "-----END PUBLIC KEY-----";
-
-    return finalString;
-}

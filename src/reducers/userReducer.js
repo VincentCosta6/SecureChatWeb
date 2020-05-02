@@ -10,15 +10,11 @@ export default function(state = initialState, action) {
         case SET_USER: 
             const { user, password } = action
 
-            const privateKey = JSON.parse(localStorage.getItem("generatedKeys")).privateKey
-
             const userState = {
                 _id: user._id,
                 username: user.username,
                 password,
                 publicKey: user.publicKey,
-                privateKey,
-                protectedKey: user.protectedKey,
                 token: action.token
             }
 

@@ -27,6 +27,7 @@ function App() {
             history.push("/messages")
         }
         else {
+            console.log("rekt")
             history.push("/")
         }
     }, [])
