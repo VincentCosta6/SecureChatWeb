@@ -45,8 +45,8 @@ export const loadChannels = user => dispatch => {
         })
 }
 
-export const addChannel = (user, channel) => dispatch => {
-    const newChannel = decryptChannel(user, channel, -2)
+export const addChannel = (user, channel) => async dispatch => {
+    const newChannel = await decryptChannel(user, channel, -2)
 
     dispatch({
         type: ADD_CHANNEL,
