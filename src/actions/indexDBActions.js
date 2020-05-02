@@ -24,7 +24,7 @@ export const openIndexDB = data => dispatch => {
         return
     }
 
-    let request = window.indexedDB.open("securechat", 4)
+    let request = window.indexedDB.open("securechat", 3)
 
     let firstReq = true
 

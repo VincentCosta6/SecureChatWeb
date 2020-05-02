@@ -169,6 +169,7 @@ const CreateChannel = props => {
                 open={formOpen}
                 onClose={handleClose}
                 aria-labelledby="form-dialog-title"
+                fullScreen = {props.width < 750}
             >
                 <DialogTitle id="form-dialog-title">Create Channel</DialogTitle>
                 <DialogContent>

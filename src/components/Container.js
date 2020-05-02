@@ -103,7 +103,7 @@ export const Container = props => {
                     <div className = {styles.viewContainer}>
                         <div>
                             <h1>You are not in any channels!</h1>
-                            <CreateChannel />
+                            <CreateChannel width = {width} />
                         </div>
                     </div>
                 )
