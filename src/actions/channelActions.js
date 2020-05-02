@@ -1,6 +1,6 @@
 import store from "../store"
 
-import { dbQueryPromise } from "../utility/indexDBWrappers"
+import { dbPromise, dbQueryPromise } from "../utility/indexDBWrappers"
 
 import { authReq } from "../axios-auth"
 import { AES } from "crypto-js"
@@ -32,9 +32,13 @@ export const loadChannels = user => dispatch => {
                 type: DECRYPTING
             })
 
-            const channels = await Promise.all(data.data.results.map(async (channel, index) => await decryptChannel(user, channel, index)))
+            const keyStore = store.getState().indexdb.db.transaction(["keystore"]).objectStore("keystore")
+            const request = keyStore.get(store.getState().user.username)
 
-            console.log("here")
+            const event = await dbQueryPromise(request)
+            const privateKey = event.target.result.keys.privateKey
+
+            const channels = await Promise.all(data.data.results.map(async (channel, index) => await decryptChannel(user, channel, index, privateKey)))
 
             // merge websocket queue messages
 
@@ -46,7 +50,13 @@ export const loadChannels = user => dispatch => {
 }
 
 export const addChannel = (user, channel) => async dispatch => {
-    const newChannel = await decryptChannel(user, channel, -2)
+    const keyStore = store.getState().indexdb.db.transaction(["keystore"]).objectStore("keystore")
+    const request = keyStore.get(store.getState().user.username)
+
+    const event = await dbQueryPromise(request)
+    const privateKey = event.target.result.keys.privateKey
+
+    const newChannel = await decryptChannel(user, channel, -2, privateKey)
 
     dispatch({
         type: ADD_CHANNEL,
@@ -78,8 +88,6 @@ export const addMessage = (message) => async dispatch => {
             channel_index = i
         }
     }
-
-    console.log(message)
 
     const decrypted = await decrypt(message.Encrypted, store.getState().channels.channels[channel_index].AESKey)
 
@@ -120,38 +128,39 @@ export const clearData = _ => dispatch => {
     })
 }
 
-export async function decryptChannel(user, channel, index) {
+export async function decryptChannel(user, channel, index, myPrivateKey) {
     const myKey = channel.PrivateKeys[user._id]
 
-    const keyStore = store.getState().indexdb.db.transaction(["keystore"]).objectStore("keystore")
-    const request = keyStore.get(store.getState().user.username)
-
+    // query the channel key from indexedDB, if it fails unwrap my key from the channel and store that in indexedDB
+    let channel_key;
+    const channelKeyStore = store.getState().indexdb.db.transaction(["channel_keystore"]).objectStore("channel_keystore")
+    const requestChannel = channelKeyStore.get(channel._id)
     try {
-        const event = await dbQueryPromise(request)
+        channel_key = (await dbQueryPromise(requestChannel)).target.result.key
+    }
+    catch(err) {
+        channel_key = await crypto.subtle.unwrapKey("raw", Buffer.from(myKey, "hex"), myPrivateKey, "RSA-OAEP", { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"] )
+        const transaction = store.getState().indexdb.db.transaction(["channel_keystore"], "readwrite")
 
-        const privateKey = event.target.result.keys.privateKey
+        const keystoreObjectStore = transaction.objectStore("channel_keystore")
+        keystoreObjectStore.put({ channel_id: channel._id, key: channel_key })
+    }
 
-        console.log(myKey)
-
-        const encoder = new TextEncoder()
-
-        const unwrapped = await crypto.subtle.unwrapKey("raw", Buffer.from(myKey, "hex"), privateKey, "RSA-OAEP", { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"] )
-
+    // Start decrypting the messages in the channel
+    try {
         let decryptedMessages = []
 
         if (channel.Messages) {
             decryptedMessages = await Promise.all(channel.Messages.map(async message => {
-                return { ...message, Encrypted: await decrypt(message.Encrypted, unwrapped) }
+                return { ...message, Encrypted: await decrypt(message.Encrypted, channel_key) }
             }))
         }
-
-        console.log(channel)
 
         return {
             _id: channel._id,
             Name: channel.Name,
             privateKeys: channel.PrivateKeys,
-            AESKey: unwrapped,
+            AESKey: channel_key,
             index,
             messages: decryptedMessages,
             typers: {}
@@ -164,28 +173,6 @@ export async function decryptChannel(user, channel, index) {
 
 }
 
-function _base64ToArrayBuffer(base64) {
-    var binary_string = window.atob(base64);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++) {
-        bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes.buffer;
-}
-
-
-function _arrayBufferToBase64( buffer ) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode( bytes[ i ] );
-    }
-    return window.btoa( binary );
-}
-
-// AESKey is a base64 string
 export async function decrypt(message, AESKey) {
     const decoder = new TextDecoder()
 
@@ -208,7 +195,6 @@ export async function decrypt(message, AESKey) {
     return decoder.decode(decrypted)
 }
 
-// masterkey is a utf-8 string
 export async function encrypt(text, masterkey) {
     const encoder = new TextEncoder()
 
