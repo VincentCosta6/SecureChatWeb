@@ -129,6 +129,7 @@ export const clearData = _ => dispatch => {
 export async function decryptChannel(user, channel, index, myPrivateKey) {
     const myKey = channel.PrivateKeys[user._id]
 
+    console.time("KeyDerivation")
     // query the channel key from indexedDB, if it fails unwrap my key from the channel and store that in indexedDB
     let channel_key;
     const channelKeyStore = store.getState().indexdb.db.transaction(["channel_keystore"]).objectStore("channel_keystore")
@@ -144,14 +145,18 @@ export async function decryptChannel(user, channel, index, myPrivateKey) {
         keystoreObjectStore.put({ channel_id: channel._id, key: channel_key })
     }
 
+    console.timeEnd("KeyDerivation")
+
     // Start decrypting the messages in the channel
     try {
         let decryptedMessages = []
 
         if (channel.Messages) {
+            console.time("DecryptMessages")
             decryptedMessages = await Promise.all(channel.Messages.map(async message => {
                 return { ...message, Encrypted: await decrypt(message.Encrypted, channel_key) }
             }))
+            console.timeEnd("DecryptMessages")
         }
 
         return {
@@ -184,11 +189,17 @@ export async function decrypt(message, AESKey) {
     const keyMaterial = await getKeyMaterial(AESKey)
     const key = await deriveKeyWithSalt(keyMaterial, salt)
 
+    const unique = Math.random()
+
+    console.time("decrypt" + unique)
+
     const decrypted = await crypto.subtle.decrypt(
         { name: "AES-GCM", iv: iv },
         key,
         text
     )
+
+    console.timeEnd("decrypt" + unique)
 
     return decoder.decode(decrypted)
 }
@@ -230,7 +241,7 @@ function deriveKeyWithSalt(keyMaterial, salt) {
         {
             "name": "PBKDF2",
             salt: salt,
-            "iterations": 100000,
+            "iterations": 2000,
             "hash": "SHA-512"
         },
         keyMaterial,
