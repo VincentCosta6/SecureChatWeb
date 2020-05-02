@@ -24,7 +24,7 @@ export const openIndexDB = data => dispatch => {
         return
     }
 
-    let request = window.indexedDB.open("securechat", 3)
+    let request = window.indexedDB.open("securechat", 4)
 
     let firstReq = true
 
@@ -50,6 +50,8 @@ export const openIndexDB = data => dispatch => {
         channels.createIndex("channel_name", "channel_name", { unique: false })
 
         const keystore = db.createObjectStore("keystore", { keyPath: "username" })
+
+        const channel_keystore = db.createObjectStore("channel_keystore", { keyPath: "channel_id" })
 
         dispatch({
             type: UPGRADE_DB
