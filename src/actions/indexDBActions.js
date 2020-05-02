@@ -1,3 +1,8 @@
+import store from "../store"
+import { loadUser } from "./userActions"
+import { dbQueryPromise } from "../utility/indexDBWrappers"
+import { GiTorpedo } from "react-icons/gi"
+
 export const OPEN_INDEXDB = "OPEN_INDEXDB"
 
 export const INDEXDB_ATTEMPT = "INDEXDB_ATTEMPT"
@@ -24,7 +29,7 @@ export const openIndexDB = data => dispatch => {
         return
     }
 
-    let request = window.indexedDB.open("securechat", 3)
+    let request = window.indexedDB.open("securechat", 4)
 
     let firstReq = true
 
@@ -34,13 +39,24 @@ export const openIndexDB = data => dispatch => {
         })
     }
 
-    request.onsuccess = event => {
+    request.onsuccess = async event => {
         firstReq = false
 
         dispatch({
             type: OPEN_INDEXDB,
             db: event.target.result
         })
+
+        const stored = localStorage.getItem("user")
+
+        if(stored && stored.length > 4) {
+            const userDataStore = store.getState().indexdb.db.transaction(["user_data"]).objectStore("user_data")
+            const request = userDataStore.get(stored)
+    
+            const result = await dbQueryPromise(request)
+    
+            store.dispatch(loadUser(result.target.result))
+        }
     }
 
     request.onupgradeneeded = event => {
@@ -52,6 +68,8 @@ export const openIndexDB = data => dispatch => {
         const keystore = db.createObjectStore("keystore", { keyPath: "username" })
 
         const channel_keystore = db.createObjectStore("channel_keystore", { keyPath: "channel_id" })
+
+        const user_data = db.createObjectStore("user_data", { keyPath: "_id" })
 
         dispatch({
             type: UPGRADE_DB

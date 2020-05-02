@@ -194,12 +194,12 @@ const Register = props => {
 
     const handleSuccess = data => {
         clearInterval(interval)
-        props.setUser(data.data.user, data.data.token, form.password)
+        props.setUser(data.data.user, data.data.token)
 
-        localStorage.setItem("user", JSON.stringify(data.data.user))
         localStorage.setItem("token", data.data.token)
+        localStorage.setItem("user", data.data.user._id)
 
-        props.history.push("/messages")
+        setTimeout(_ => props.history.push("/messages"), 50)
     }
 
     const handleError = err => {

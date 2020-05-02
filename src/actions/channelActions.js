@@ -40,8 +40,6 @@ export const loadChannels = user => dispatch => {
 
             const channels = await Promise.all(data.data.results.map(async (channel, index) => await decryptChannel(user, channel, index, privateKey)))
 
-            // merge websocket queue messages
-
             dispatch({
                 type: LOAD_CHANNELS,
                 channels
