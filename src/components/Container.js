@@ -9,7 +9,7 @@ import { openIndexDB } from "../actions/indexDBActions"
 
 import {
     isPushNotificationSupported,
-    askUserPermission,
+    askNotificationPermission,
     registerServiceWorker,
     createNotificationSubscription,
     getUserSubscription
@@ -68,7 +68,7 @@ export const Container = props => {
 
     useEffect(_ => {
         if(isPushNotificationSupported) {
-            askUserPermission().then(async consent => {
+            askNotificationPermission().then(async consent => {
                 console.log(`Notification consent is set to ${consent}`)
 
                 if(consent === "granted") {

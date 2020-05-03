@@ -7,11 +7,36 @@ function isPushNotificationSupported() {
     return "serviceWorker" in navigator && "PushManager" in window;
 }
 
+function checkNotificationPromise() {
+    try {
+        Notification.requestPermission().then()
+    } catch (e) {
+        return false
+    }
+
+    return true
+}
+
 /**
  * asks user consent to receive push notifications and returns the response of the user, one of granted, default, denied
  */
-async function askUserPermission() {
-    return await Notification.requestPermission();
+function askNotificationPermission() {
+    return new Promise(function (resolve, reject) {
+        if (!('Notification' in window)) {
+            console.log("This browser does not support notifications.")
+        } else {
+            if (checkNotificationPromise()) {
+                Notification.requestPermission()
+                    .then((permission) => {
+                        resolve(permission)
+                    })
+            } else {
+                Notification.requestPermission(function (permission) {
+                    resolve(permission)
+                });
+            }
+        }
+    })
 }
 /**
  * shows a notification
@@ -72,7 +97,7 @@ function getUserSubscription() {
 
 export {
     isPushNotificationSupported,
-    askUserPermission,
+    askNotificationPermission,
     registerServiceWorker,
     sendNotification,
     createNotificationSubscription,
