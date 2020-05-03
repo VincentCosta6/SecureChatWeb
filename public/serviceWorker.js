@@ -204,8 +204,8 @@ self.addEventListener('push', async function (e) {
             primaryKey: 1
         }
     };
-    e.waitUntil(
-        self.registration.showNotification('SecureChat', options)
+    await e.waitUntil(
+        await self.registration.showNotification('SecureChat', options)
     );
 });
 
