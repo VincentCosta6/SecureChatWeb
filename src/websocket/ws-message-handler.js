@@ -6,7 +6,7 @@ import { callIncoming, callAccepted } from "../actions/callActions"
 
 const timeouts = {}
 
-export const handleMessage = message => {
+export const handleMessage = async message => {
     console.log(message)
 
     const isAway = !document.hasFocus()
@@ -31,10 +31,10 @@ export const handleMessage = message => {
             store.dispatch(addMessage(message.MessageContent))
 
             if(isAway) {
-                new Notification("SecureChat", {
-                    body: "You received a new message",
-                    icon: ""
-                })
+                /*const reg = await navigator.serviceWorker.ready
+                reg.showNotification("New message", {
+                    vibrate: [100, 50, 100]
+                })*/
             }
             
             break

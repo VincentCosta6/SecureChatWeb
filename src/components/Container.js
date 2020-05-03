@@ -72,7 +72,7 @@ export const Container = props => {
                 console.log(`Notification consent is set to ${consent}`)
 
                 if(consent === "granted") {
-                    const reg = await navigator.serviceWorker.register("/../service-worker.js")
+                    const reg = await navigator.serviceWorker.register("/serviceWorker.js")
 
                     await navigator.serviceWorker.ready
 
@@ -86,30 +86,6 @@ export const Container = props => {
                             applicationServerKey: public_key
                         })
                     }
-
-                    async function receivePushNotification(event) {
-                        console.log("[Service Worker] Push Received.");
-
-                        console.log(event)
-                    
-                        const options = {
-                            vibrate: [200, 100, 200],
-                        };
-
-                        const reg = await navigator.serviceWorker.ready
-
-                        event.waitUntil(reg.showNotification("Notification", options));
-                    }
-                    
-                    function openPushNotification(event) {
-                        console.log("[Service Worker] Notification click Received.", event.notification.data);
-                    
-                        event.notification.close();
-                        event.waitUntil(window.self.clients.openWindow(event.notification.data));
-                    }
-                    
-                    window.self.addEventListener("push", receivePushNotification);
-                    window.self.addEventListener("notificationclick", openPushNotification);
                     
                     console.log("[Web Push] Subscription: ", subscription)
 

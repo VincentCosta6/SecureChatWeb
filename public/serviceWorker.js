@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 // This optional code is used to register a service worker.
 // register() is not called by default.
 
@@ -10,7 +11,7 @@
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read https://bit.ly/CRA-PWA
 
-const isLocalhost = Boolean(
+/*const isLocalhost = Boolean(
     window.location.hostname === 'localhost' ||
     // [::1] is the IPv6 localhost address.
     window.location.hostname === '[::1]' ||
@@ -20,7 +21,7 @@ const isLocalhost = Boolean(
     )
 );
 
-export function register(config) {
+function register(config) {
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
         // The URL constructor is available in all browsers that support SW.
         const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
@@ -32,7 +33,7 @@ export function register(config) {
         }
 
         window.addEventListener('load', () => {
-            const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
+            const swUrl = `${process.env.PUBLIC_URL}/serviceWorker.js`;
 
             if (isLocalhost) {
                 // This is running on localhost. Let's check if a service worker still exists or not.
@@ -126,38 +127,150 @@ function checkValidServiceWorker(swUrl, config) {
         });
 }
 
-export function unregister() {
+function unregister() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(registration => {
             registration.unregister();
         });
     }
+}*/
+
+async function getIndexedDB() {
+    return new Promise(function(resolve, reject) {
+        const request = indexedDB.open("securechat", 4)
+
+        request.onsuccess = event => {
+            resolve(event.target.result)
+        }
+
+        request.onupgradeneeded = event => {
+            const db = event.target.result
+
+            const channels = db.createObjectStore("channels", { keyPath: "channel_id" })
+            channels.createIndex("channel_name", "channel_name", { unique: false })
+
+            const keystore = db.createObjectStore("keystore", { keyPath: "username" })
+
+            const channel_keystore = db.createObjectStore("channel_keystore", { keyPath: "channel_id" })
+
+            const user_data = db.createObjectStore("user_data", { keyPath: "_id" })
+        }
+
+        request.onerror = event => {
+            reject()
+        }
+    })
 }
 
-function receivePushNotification(event) {
-    console.log("[Service Worker] Push Received.");
+const dbQueryPromise = (indexedDBObj) => {
+    return new Promise(function(resolve, reject) {
+        indexedDBObj.onerror = reject
+        indexedDBObj.onsuccess = resolve
+    })
+}
 
-    const { image, tag, url, title, text } = event.data.json();
+self.addEventListener('push', async function (e) {
+    console.log(e)
 
-    const options = {
-        data: url,
-        body: text,
-        icon: image,
-        vibrate: [200, 100, 200],
-        tag: tag,
-        image: image,
-        badge: "https://spyna.it/icons/favicon.ico",
-        actions: [{ action: "Detail", title: "View", icon: "https://via.placeholder.com/128/ff0000" }]
+    const data = await e.data.json()
+
+    let message = ""
+
+    if (data) {
+        const db = await getIndexedDB()
+
+        if(data.ChannelID && data.Encrypted) {
+            const channelKeyStore = db.transaction(["channel_keystore"]).objectStore("channel_keystore")
+            const requestChannel = channelKeyStore.get(data.ChannelID)
+
+            const channel_key = (await dbQueryPromise(requestChannel)).target.result.key
+
+            message = { ...data, Encrypted: await decrypt(data.Encrypted, channel_key) }
+
+            message = message.Encrypted
+
+            message = JSON.parse(message).content
+        }
+    } else {
+        return
+    }
+
+    var options = {
+        body: message,
+
+        vibrate: [100, 50, 100],
+        data: {
+            dateOfArrival: Date.now(),
+            primaryKey: 1
+        }
     };
-    event.waitUntil(window.self.registration.showNotification(title, options));
+    e.waitUntil(
+        self.registration.showNotification('SecureChat', options)
+    );
+});
+
+function _base64ToArrayBuffer(base64) {
+    var binary_string = atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
 }
 
-function openPushNotification(event) {
-    console.log("[Service Worker] Notification click Received.", event.notification.data);
+async function decrypt(message, AESKey) {
+    const decoder = new TextDecoder()
 
-    event.notification.close();
-    event.waitUntil(window.self.clients.openWindow(event.notification.data));
+    const bData = _base64ToArrayBuffer(message)
+    // convert data to buffers
+    const iv = bData.slice(0, 16)
+    const salt = bData.slice(16, 80)
+    const text = bData.slice(80)
+
+    const keyMaterial = await getKeyMaterial(AESKey)
+    const key = await deriveKeyWithSalt(keyMaterial, salt)
+
+    const unique = Math.random()
+
+    console.time("decrypt" + unique)
+
+    const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        text
+    )
+
+    console.timeEnd("decrypt" + unique)
+
+    return decoder.decode(decrypted)
 }
 
-window.self.addEventListener("push", receivePushNotification);
-window.self.addEventListener("notificationclick", openPushNotification);
+async function getKeyMaterial(AESKey) {
+    let enc = new TextEncoder()
+
+    const keyString = await crypto.subtle.exportKey("raw", AESKey)
+
+    return crypto.subtle.importKey(
+        "raw",
+        enc.encode(keyString),
+        { name: "PBKDF2" },
+        false,
+        ["deriveBits", "deriveKey"]
+    )
+}
+
+function deriveKeyWithSalt(keyMaterial, salt) {
+    return crypto.subtle.deriveKey(
+        {
+            "name": "PBKDF2",
+            salt: salt,
+            "iterations": 2000,
+            "hash": "SHA-512"
+        },
+        keyMaterial,
+        { "name": "AES-GCM", "length": 256 },
+        true,
+        ["encrypt", "decrypt"]
+    )
+}
