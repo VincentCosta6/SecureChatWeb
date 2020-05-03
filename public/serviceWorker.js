@@ -169,7 +169,7 @@ const dbQueryPromise = (indexedDBObj) => {
     })
 }
 
-self.addEventListener('push', async function (e) {
+self.addEventListener('push', function (e) {
     console.log(e)
 
     e.waitUntil(
