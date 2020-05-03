@@ -207,7 +207,7 @@ self.addEventListener('push', function (e) {
                 }
             };
 
-            await self.registration.showNotification('SecureChat', options)
+            return self.registration.showNotification('SecureChat', options)
         }
     )
 });
