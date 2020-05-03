@@ -169,47 +169,47 @@ const dbQueryPromise = (indexedDBObj) => {
     })
 }
 
+async function generateMessage(e) {
+    const data = await e.data.json()
+
+    let message = ""
+
+    if (data) {
+        const db = await getIndexedDB()
+
+        if(data.ChannelID && data.Encrypted) {
+            const channelKeyStore = db.transaction(["channel_keystore"]).objectStore("channel_keystore")
+            const requestChannel = channelKeyStore.get(data.ChannelID)
+
+            const channel_key = (await dbQueryPromise(requestChannel)).target.result.key
+
+            message = { ...data, Encrypted: await decrypt(data.Encrypted, channel_key) }
+
+            message = message.Encrypted
+
+            message = JSON.parse(message).content
+        }
+    } else {
+        return
+    }
+
+    var options = {
+        body: message,
+
+        vibrate: [100, 50, 100],
+        data: {
+            dateOfArrival: Date.now(),
+            primaryKey: 1
+        }
+    };
+
+    await self.registration.showNotification('SecureChat', options)
+}
+
 self.addEventListener('push', function (e) {
     console.log(e)
 
-    e.waitUntil(
-        async _ => {
-            const data = await e.data.json()
-
-            let message = ""
-
-            if (data) {
-                const db = await getIndexedDB()
-
-                if(data.ChannelID && data.Encrypted) {
-                    const channelKeyStore = db.transaction(["channel_keystore"]).objectStore("channel_keystore")
-                    const requestChannel = channelKeyStore.get(data.ChannelID)
-
-                    const channel_key = (await dbQueryPromise(requestChannel)).target.result.key
-
-                    message = { ...data, Encrypted: await decrypt(data.Encrypted, channel_key) }
-
-                    message = message.Encrypted
-
-                    message = JSON.parse(message).content
-                }
-            } else {
-                return
-            }
-
-            var options = {
-                body: message,
-
-                vibrate: [100, 50, 100],
-                data: {
-                    dateOfArrival: Date.now(),
-                    primaryKey: 1
-                }
-            };
-
-            return self.registration.showNotification('SecureChat', options)
-        }
-    )
+    e.waitUntil(generateMessage(e))
 });
 
 function _base64ToArrayBuffer(base64) {
