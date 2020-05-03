@@ -7,12 +7,23 @@ import useInterval from "../utility/useInterval"
 import { loadChannels } from "../actions/channelActions"
 import { openIndexDB } from "../actions/indexDBActions"
 
+import {
+    isPushNotificationSupported,
+    askUserPermission,
+    registerServiceWorker,
+    createNotificationSubscription,
+    getUserSubscription
+  } from "../push_notifications/pushNotifs";
+
 import SidePanel from "./SidePanel"
 import ChannelView from "./ChannelView"
 
 import CreateChannel from "./CreateChannel"
 
 import { openWebsocket } from "../actions/socketActions"
+import { authReq } from "../axios-auth"
+
+const pushNotificationSupported = isPushNotificationSupported()
 
 const useStyles = makeStyles({
     container: {
@@ -37,6 +48,8 @@ const useStyles = makeStyles({
     })
 })
 
+const public_key = "BO47up6T_b3tELDFjeBPXNpUZZ45B5wcHgDKnsjI3ykGGW6q2b8qKFDfL4v8XBtDUlqOEKl2pfEcYg8nE9NIUqE"
+
 export const Container = props => {
     const theme = useTheme()
     const styles = useStyles({ theme })
@@ -50,6 +63,69 @@ export const Container = props => {
 
         return _ => {
             window.removeEventListener("resize", updateWindowWidth)
+        }
+    }, [])
+
+    useEffect(_ => {
+        if(isPushNotificationSupported) {
+            askUserPermission().then(async consent => {
+                console.log(`Notification consent is set to ${consent}`)
+
+                if(consent === "granted") {
+                    const reg = await navigator.serviceWorker.register("/../service-worker.js")
+
+                    await navigator.serviceWorker.ready
+
+                    console.log("[Service Worker] Registration: ", reg)
+                    let subscription = await reg.pushManager.getSubscription()
+
+                    if(!subscription) {
+                        console.log("[Web Push] No subscription found generating one...")
+                        subscription = await reg.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: public_key
+                        })
+                    }
+
+                    function receivePushNotification(event) {
+                        console.log("[Service Worker] Push Received.");
+                    
+                        const { image, tag, url, title, text } = event.data.json();
+                    
+                        const options = {
+                            data: url,
+                            body: text,
+                            icon: image,
+                            vibrate: [200, 100, 200],
+                            tag: tag,
+                            image: image,
+                            badge: "https://spyna.it/icons/favicon.ico",
+                            actions: [{ action: "Detail", title: "View", icon: "https://via.placeholder.com/128/ff0000" }]
+                        };
+                        event.waitUntil(window.self.registration.showNotification(title, options));
+                    }
+                    
+                    function openPushNotification(event) {
+                        console.log("[Service Worker] Notification click Received.", event.notification.data);
+                    
+                        event.notification.close();
+                        event.waitUntil(window.self.clients.openWindow(event.notification.data));
+                    }
+                    
+                    window.self.addEventListener("push", receivePushNotification);
+                    window.self.addEventListener("notificationclick", openPushNotification);
+                    
+                    console.log("[Web Push] Subscription: ", subscription)
+
+                    const res = await authReq(localStorage.getItem("token"))
+                        .post("https://servicetechlink.com/subscription", subscription)
+
+                    console.log(res)
+                }
+            })
+            .catch(err => {
+                console.error("[Service Worker] Error occured while asking for permissions", err)
+            })
         }
     }, [])
 

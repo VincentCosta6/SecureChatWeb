@@ -1,5 +1,6 @@
 import store from "../store"
 
+import { authReq } from "../axios-auth"
 
 import { WEBSOCKET_STATUS } from "./connectionActions"
 
@@ -39,6 +40,8 @@ export const openWebsocket = token => dispatch => {
         dispatch({
             type: WEBSOCKET_SUCCESS,
         })
+        
+
     }
 
     client.onmessage = message => {
