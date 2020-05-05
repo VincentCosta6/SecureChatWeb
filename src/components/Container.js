@@ -144,7 +144,7 @@ export const Container = props => {
             let message = ""
 
             if(loading) {
-                message = <CircularProgress size = {23} color = "primary" />
+                message = <CircularProgress color = "primary" />
             }
             else if(notIn) {
                 return(
@@ -191,7 +191,7 @@ export const Container = props => {
             return (
                 <div className = {styles.viewContainer}>
                     <div>
-                        { !props.websocket.failed && <CircularProgress size = {23} /> }
+                        { !props.websocket.failed && <CircularProgress /> }
                         <h1>{message}</h1>
                         { !props.websocket.opening && props.websocket.failed && <h3>Trying again in {retry}</h3> }
                     </div>

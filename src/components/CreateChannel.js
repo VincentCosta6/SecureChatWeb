@@ -96,8 +96,10 @@ const CreateChannel = props => {
         console.log(buf2hex(myWrappedKey))
 
         const privateKeys = {}
+        const userMap = {}
 
         privateKeys[props.user._id] = buf2hex(myWrappedKey)
+        userMap[props.user._id]     = props.user.username
 
         await Promise.all(selectedUsers.map(async user => {
             const pemHeader = "-----BEGIN PUBLIC KEY-----";
@@ -109,13 +111,15 @@ const CreateChannel = props => {
             const userWrappedKey = await crypto.subtle.wrapKey("raw", key, userKey, "RSA-OAEP")
 
             privateKeys[user._id] = buf2hex(userWrappedKey)
+            userMap[user._id]     = user.username
         }))
 
         console.log(privateKeys)
 
         const channelObj = {
             name: channelName,
-            privateKeys
+            privateKeys,
+            userMap
         }
 
         authReq(localStorage.getItem("token")).post("https://servicetechlink.com/channel/create", JSON.stringify(channelObj))

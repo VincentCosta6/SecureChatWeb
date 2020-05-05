@@ -162,14 +162,19 @@ const CallView = props => {
                     <MdSpeakerNotesOff size = {23} color = {theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
                     Mute Channel
                 </MenuItem>
-                <MenuItem onClick={handleVoiceCall}>
-                    <FiPhone size = {23} color = {theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
-                    Audio Call
-                </MenuItem>
-                <MenuItem onClick={handleVideoCall}>
-                    <FiVideo size = {23} color = {theme.palette.primary.main} onClick = {handleVideoCall} style={{ cursor: "pointer", marginRight: 15 }} />
-                    Video Call
-                </MenuItem>
+                {
+                    props.channels.activeChannel !== -1 && Object.keys(props.channels.channels[props.channels.activeChannel].privateKeys).length === 2 &&
+                    <>
+                        <MenuItem onClick={handleVoiceCall}>
+                            <FiPhone size = {23} color = {theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
+                            Audio Call
+                        </MenuItem>
+                        <MenuItem onClick={handleVideoCall}>
+                            <FiVideo size = {23} color = {theme.palette.primary.main} onClick = {handleVideoCall} style={{ cursor: "pointer", marginRight: 15 }} />
+                            Video Call
+                        </MenuItem>
+                    </>
+                }
                 <MenuItem onClick={handleLeaveChannel}>
                     <IoIosExit size = {23} color = {theme.palette.primary.main} onClick = {handleVideoCall} style={{ cursor: "pointer", marginRight: 15 }} />
                     Leave Channel
