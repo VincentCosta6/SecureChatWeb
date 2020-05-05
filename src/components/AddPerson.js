@@ -59,6 +59,7 @@ const AddPerson = props => {
         }
 
         const privateKeys = {}
+        const userMap = {}
 
         await Promise.all(selectedUsers.map(async user => {
             const pemHeader = "-----BEGIN PUBLIC KEY-----";
@@ -70,11 +71,13 @@ const AddPerson = props => {
             const userWrappedKey = await crypto.subtle.wrapKey("raw", currentChannel.AESKey, userKey, "RSA-OAEP")
 
             privateKeys[user._id] = buf2hex(userWrappedKey)
+            userMap[user._id]     = user.username
         }))
 
         const addUserForm = {
             channelID: currentChannel._id,
-            privateKeys: privateKeys
+            privateKeys: privateKeys,
+            userMap
         }
 
         authReq(props.user.token).post("https://servicetechlink.com/channel/add/user", JSON.stringify(addUserForm))
