@@ -57,10 +57,20 @@ const Channel = props => {
         props.setActive(props.data.index)
     }
 
+    const _renderChannelName = _ => {
+        if(Object.keys(props.data.privateKeys).length === 2) {
+            const otherUsernames = Object.keys(props.data.userMap).filter(userID => props.data.userMap[userID] !== props.myUsername)
+            return <h4 className = {styles.title}>{props.data.userMap[otherUsernames]}</h4>
+        }
+        else {
+            return <h4 className = {styles.title}>{props.data.Name}</h4>
+        }
+    }
+
     return (
         <Card className = {styles.container} onClick={clickCard}>
             <div style = {{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <h4 className = {styles.title}>{props.data.Name}</h4>
+                { _renderChannelName() }
 
                 { time && <p>{formatMessageTime(time)}</p> }
             </div>

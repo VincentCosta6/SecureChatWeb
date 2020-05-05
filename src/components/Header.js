@@ -206,11 +206,21 @@ const Header = props => {
         return <></>
     }
 
+    const _renderChannelName = _ => {
+        const currentChannel = props.channels.channels[props.channels.activeChannel]
+
+        if(currentChannel && Object.keys(currentChannel.privateKeys).length === 2) {
+            const otherUsernames = Object.keys(currentChannel.userMap).filter(userID => currentChannel.userMap[userID] !== props.user.username)
+            return <h1 style={{ margin: "0 15px", color: theme.palette.text.primary, fontSize: "1.5rem" }}>{currentChannel.userMap[otherUsernames]}</h1>
+        }
+        return <h1 style={{ margin: "0 15px", color: theme.palette.text.primary, fontSize: "1.5rem" }}>{props.channelName || "Channels"}</h1>
+    }
+
     return (
         <div style={{ ...containerStyle, backgroundColor: theme.palette.background.paper, boxShadow: "0px 0px 6px 1px gray", position: "sticky", top: 0 }}>
             <div style={{ display: "flex", alignItems: "center", width: 200, minWidth: 200 }}>
                 {_renderMenu()}
-                { <h1 style={{ margin: "0 15px", color: theme.palette.text.primary, fontSize: "1.5rem" }}>{props.channelName || "Channels"}</h1> }
+                { _renderChannelName() }
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Drawer open={drawerOpen} onClose={_ => setDrawer(false)}>

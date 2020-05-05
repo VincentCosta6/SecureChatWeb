@@ -164,7 +164,7 @@ const CallView = props => {
                 </MenuItem>
                 {
                     props.channels.activeChannel !== -1 && Object.keys(props.channels.channels[props.channels.activeChannel].privateKeys).length === 2 &&
-                    <>
+                    <div>
                         <MenuItem onClick={handleVoiceCall}>
                             <FiPhone size = {23} color = {theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
                             Audio Call
@@ -173,7 +173,7 @@ const CallView = props => {
                             <FiVideo size = {23} color = {theme.palette.primary.main} onClick = {handleVideoCall} style={{ cursor: "pointer", marginRight: 15 }} />
                             Video Call
                         </MenuItem>
-                    </>
+                    </div>
                 }
                 <MenuItem onClick={handleLeaveChannel}>
                     <IoIosExit size = {23} color = {theme.palette.primary.main} onClick = {handleVideoCall} style={{ cursor: "pointer", marginRight: 15 }} />

@@ -163,6 +163,7 @@ export async function decryptChannel(user, channel, index, myPrivateKey) {
             _id: channel._id,
             Name: channel.Name,
             privateKeys: channel.PrivateKeys,
+            userMap: channel.UserMap,
             AESKey: channel_key,
             index,
             messages: decryptedMessages,
