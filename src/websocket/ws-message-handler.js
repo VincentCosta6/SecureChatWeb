@@ -35,6 +35,10 @@ export const handleMessage = async message => {
                 reg.showNotification("New message", {
                     vibrate: [100, 50, 100]
                 })*/
+
+                new Notification("SecureChat", {
+                    body: "New message in SecureChat"
+                })
             }
             
             break

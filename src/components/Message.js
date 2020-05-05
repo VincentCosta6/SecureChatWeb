@@ -10,7 +10,7 @@ const Message = props => {
     if(props.last)
         lastWasSame = props.parsed.sender === (props.last.Encrypted.sender)
 
-    const border = isMe ? "20px 20px 20px 20px" : "20px 20px 20px 20px"
+    const border = 10
     const color = isMe ? props.myColor : props.otherColor
     const aligned = isMe ? "flex-end" : "flex-start"
     const sender = isMe ? "You: " : props.parsed.sender + ": "
@@ -49,7 +49,7 @@ const Message = props => {
             <div 
                 style = {{ 
                     alignSelf: aligned, 
-                    margin: "5px 10px", 
+                    margin: "2px 10px", 
                     maxWidth: "80%", 
                     wordBreak: "break-all",
                     border: props.parsed.type !== "MESSAGE" ? "1px solid " + color : "",
@@ -63,17 +63,26 @@ const Message = props => {
                     minWidth: 20, 
                     padding: 10, 
                     borderRadius: border,  
+                    display: props.parsed.content.length < 25 ? "flex" : "",
+                    alignItems: "center"
                 }}>
                     { 
                         props.parsed.type === "MESSAGE" ?  
-                        <p className = "message" style = {{ margin: 0, color: textColor, wordBreak: "break-word" }}>{props.parsed.content} </p> :
+                        <p className = "message" style = {{ zIndex: 50, margin: 3, color: textColor, wordBreak: "break-word", marginBottom: props.parsed.content.length < 25 ? 3 : 0, }}>{props.parsed.content} </p> :
                         <>
                             <p style = {{ margin: 0, color: textColor }}>Short name: {props.parsed.content.name.slice(0, 25)}</p>
                             <p style = {{ margin: "5px 0 0 0", color: textColor }}>Type: {props.parsed.content.extension}: "{extension}"</p>
                             <p style = {{ margin: "5px 0 5px 0", color: textColor }}>Size: {(props.parsed.content.size / 1000000).toFixed(2)} MB</p>
                         </>
                     }
-                    <p style = {{ margin: 0, fontSize: "0.8rem", color: textColor, opacity: 0.8, marginLeft: 5 }}>{formatMessageTime(props.data.Timestamp)}</p>
+                    <p style = {{ 
+                        margin: 0, 
+                        fontSize: "0.8rem", 
+                        color: textColor, 
+                        opacity: 0.5, 
+                        marginLeft: 5,  
+                        textAlign: props.parsed.content.length < 25 ? "center" : "end"
+                    }}>{formatMessageTime(props.data.Timestamp)}</p>
                 </div>
 
                 { 

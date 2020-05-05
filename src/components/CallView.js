@@ -6,8 +6,13 @@ import { sendData } from "../actions/socketActions"
 import { acceptCall, declineCall, startCall, endCall } from "../actions/callActions"
 
 import { FiPhone, FiPhoneOff, FiVideo } from "react-icons/fi"
-import { FaPhone, FaMicrophone, FaMicrophoneSlash } from "react-icons/fa"
+import { FaPhone, FaMicrophone, FaMicrophoneSlash, FaUserAlt, FaBolt } from "react-icons/fa"
 import { GiSpeaker } from "react-icons/gi"
+import { BsThreeDotsVertical } from "react-icons/bs"
+import { MdSpeakerNotesOff } from "react-icons/md"
+import { IoIosExit } from "react-icons/io"
+
+import AddPerson from "./AddPerson"
 
 import {
     Dialog,
@@ -21,8 +26,12 @@ import {
     CircularProgress,
     List,
     ListItem,
+    Menu,
+    MenuItem
 } from "@material-ui/core"
 import Draggable from "react-draggable"
+
+import { authReq } from "../axios-auth"
 
 import { connect } from "react-redux"
 
@@ -63,24 +72,6 @@ const CallView = props => {
         //document.querySelector("video#localAudio").remove()
     }
 
-    const _renderCallButton = _ => (
-        <>
-            { !callActive && <FiPhone size = {23} color = {theme.palette.primary.main} onClick = {handleVoiceCall} style={{ cursor: "pointer", marginRight: 15 }} />}
-        </>
-    )
-
-    const _renderVideoButton = _ => (
-        <>
-            { !callActive && <FiVideo size = {23} color = {theme.palette.primary.main} onClick = {handleVideoCall} style={{ cursor: "pointer", marginRight: 15 }} />}
-        </>
-    )
-
-    const _renderActiveCall = _ => (
-        <>
-            <FiPhoneOff size = {23} color = {"red"} onClick = {handleHangUp} style={{ cursor: "pointer", marginRight: 15 }} />
-        </>
-    )
-
     const toggleMicrophone = _ => {
         for(let stream of props.call.stream.getAudioTracks()) {
             stream.enabled = !microphoneActive
@@ -108,17 +99,82 @@ const CallView = props => {
         else return ""
     }
 
+    const handleViewParticipants = _ => {
+        setAddVisible(true)
+    }
+
+    const handleMuteChannel = _ => {
+
+    }
+
+    const handleLeaveChannel = async _ => {
+        const channelID = props.channels.channels[props.channels.activeChannel]._id
+
+        const res = await authReq(localStorage.getItem("token")).delete("https://servicetechlink.com/channel/leave", { data: { channelID } })
+
+        console.log(res)
+    }
+
+    const [anchorEl, setAnchorEl] = useState(null)
+
+    const handleOptionsClick = event => {
+        setAnchorEl(event.currentTarget)
+    }
+
+    const [addVisible, setAddVisible] = useState(false)
+
+    const handleClose = _ => {
+        setAddVisible(false)
+    }
+
     return (
         <>
             {
                 props.connection.websocketConnected && 
                     <>
-                        { props.channels.activeChannel !== -1 && _renderCallButton() }
-                        { props.channels.activeChannel !== -1 && _renderVideoButton() }
-
-                        { callActive && _renderActiveCall() }
+                        { props.channels.activeChannel !== -1 && 
+                        <BsThreeDotsVertical onClick = {handleOptionsClick} aria-controls = "simple-menu" size = {30} color = {theme.palette.primary.main} style = {{ cursor: "pointer" }} /> }
                     </>
             }
+            {/*
+                props.connection.websocketConnected ?
+                <FaBolt color={theme.palette.primary.main} size={23} title="Websocket is open" /> :
+                <div onClick={_ => props.openWebsocket(props.user.token)}>
+                    <FaBolt color="red" size={30} title="Websocket is closed" />
+                </div>
+            */}
+            <AddPerson
+                open = {addVisible}
+                handleClose = {handleClose}
+            />
+            <Menu
+                id = "simple-menu"
+                anchorEl = {anchorEl}
+                keepMounted
+                open = {Boolean(anchorEl)}
+                onClose = {_ => setAnchorEl(null)}
+            >
+                <MenuItem onClick={handleViewParticipants}>
+                    <FaUserAlt size = {23} color = {theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
+                    Add Participant
+                </MenuItem>
+                <MenuItem onClick={handleMuteChannel}>
+                    <MdSpeakerNotesOff size = {23} color = {theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
+                    Mute Channel
+                </MenuItem>
+                <MenuItem onClick={handleVoiceCall}>
+                    <FiPhone size = {23} color = {theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
+                    Audio Call
+                </MenuItem>
+                <MenuItem onClick={handleVideoCall}>
+                    <FiVideo size = {23} color = {theme.palette.primary.main} onClick = {handleVideoCall} style={{ cursor: "pointer", marginRight: 15 }} />
+                    Video Call
+                </MenuItem>
+                <MenuItem onClick={handleLeaveChannel}>
+                    <IoIosExit size = {23} color = {theme.palette.primary.main} onClick = {handleVideoCall} style={{ cursor: "pointer", marginRight: 15 }} />
+                    Leave Channel
+                </MenuItem>
+            </Menu>
             <Dialog
                 open = {props.call.incomingCall && props.call.incomingCall ? true : false}
                 onClose = {handleHangUp}

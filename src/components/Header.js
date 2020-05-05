@@ -216,21 +216,8 @@ const Header = props => {
                 <Drawer open={drawerOpen} onClose={_ => setDrawer(false)}>
                     {sidePanel()}
                 </Drawer>
-                <div style={{ display: "flex" }}>
+                <div style={{ display: "flex", alignItems: "center" }}>
                     <CallView />
-                    {/*
-                        props.connection.serverConnected ?
-                            <FaServer color={theme.palette.primary.main} size={23} title="Server is running" /> :
-                            <FaServer color="red" size={23} title="Server is down" />
-                    */}
-                    <h2 style={{ margin: "0 5px" }}> </h2>
-                    {
-                        props.connection.websocketConnected ?
-                            <FaBolt color={theme.palette.primary.main} size={23} title="Websocket is open" /> :
-                            <div onClick={_ => props.openWebsocket(props.user.token)}>
-                                <FaBolt color="red" size={23} title="Websocket is closed" />
-                            </div>
-                    }
                 </div>
             </div>
         </div>
