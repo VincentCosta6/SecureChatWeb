@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 
 import { connect } from "react-redux"
 import { withRouter } from "react-router"
@@ -43,11 +43,25 @@ const SettingsList = [
 const SidePanel = _ => {
     const theme = useTheme()
 
-    const [activePanel, setActive] = useState(SettingsList[0])
+    const [width, setWidth] = useState(window.innerWidth)
+    
+    const [activePanel, setActive] = useState(width < 750 ? null : SettingsList[0])
+
+    useEffect(_ => {
+        window.addEventListener("resize", _ => setWidth(window.innerWidth))
+
+        return _ => {
+            window.removeEventListener("resize", _ => setWidth(window.innerWidth))
+        }
+    }, [])
 
     return (
-        <div style = {{ height: "100%", display: "flex", width: "100%" }}>
-            <div style={{ width: "20%", maxWidth: 200, backgroundColor: theme.palette.background.paper, overflowY: "auto", height: "100%" }}>
+        <div style = {{ height: "100%", display: width < 750 ? "" : "flex", width: "100%" }}>
+            <div style={{ 
+                width: width < 750 ? activePanel === null ? "100%" : "0%" : "20%", 
+                backgroundColor: theme.palette.background.paper, overflowY: "auto", height: "100%" ,
+                display: width < 750 && activePanel !== null ? "none" : ""
+            }}>
                 <List>
                     {
                         SettingsList.map(panel => {
@@ -73,7 +87,7 @@ const SidePanel = _ => {
                 </List>
             </div>
             <div style = {{ flex: 1, display: "flex", flexDirection: "column", height: "100%", backgroundColor: theme.palette.background.default }}>
-                { activePanel.view() }
+                { activePanel && activePanel.view() }
             </div>
         </div>
     )
