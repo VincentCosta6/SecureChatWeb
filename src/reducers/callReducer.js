@@ -100,6 +100,7 @@ export default function(state = initialState, action) {
         }
         case END_CALL: {
             state.peer.end()
+            state.stream.getTracks().forEach(track => track.stop())
             return { ...state, currentCall: null, peer: new Peer({ initiator: false, trickle: false }) }
         }
         default: 

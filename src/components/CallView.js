@@ -61,6 +61,7 @@ const CallView = props => {
 
     const handleCall = (constraints, data) => {
         setCallActive(true)
+        setAnchorEl(null)
 
         props.startCall(constraints, props.channels.activeChannel, props.user._id, props.user.username, data.type)
     }
@@ -68,8 +69,6 @@ const CallView = props => {
     const handleHangUp = _ => {
         setCallActive(false)
         props.endCall()
-        //stream.getTracks().forEach(track => track.stop())
-        //document.querySelector("video#localAudio").remove()
     }
 
     const toggleMicrophone = _ => {
@@ -100,14 +99,16 @@ const CallView = props => {
     }
 
     const handleViewParticipants = _ => {
+        setAnchorEl(null)
         setAddVisible(true)
     }
 
     const handleMuteChannel = _ => {
-
+        setAnchorEl(null)
     }
 
     const handleLeaveChannel = async _ => {
+        setAnchorEl(null)
         const channelID = props.channels.channels[props.channels.activeChannel]._id
 
         const res = await authReq(localStorage.getItem("token")).delete("https://servicetechlink.com/channel/leave", { data: { channelID } })
