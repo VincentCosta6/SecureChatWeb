@@ -184,6 +184,7 @@ const ChannelView = props => {
                     backgroundText = {theme.palette.text.primary}
                     backgroundColor = {theme.palette.background.paper}
                     fileDownloaded = {fileDownloaded}
+                    isPersonalChat = {Object.keys(currentChannel.privateKeys).length === 2}
                 />
             )
         })

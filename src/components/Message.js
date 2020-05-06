@@ -56,7 +56,7 @@ const Message = props => {
                     borderRadius: border,
                 }}
             >
-                { !lastWasSame && <h4 style = {{ textAlign: textAlign, margin: 0, color: props.backgroundText }}>{sender}</h4> }
+                { !lastWasSame && !props.isPersonalChat && <h4 style = {{ textAlign: textAlign, margin: 0, color: props.backgroundText }}>{sender}</h4> }
                 
                 <div className = {props.isLast ? (isMe ? "message-mine" : "message-yours") : "noner"} style = {{ 
                     backgroundColor: color, 
