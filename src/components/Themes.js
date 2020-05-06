@@ -11,7 +11,6 @@ const Theme = props => {
     const handlePrimaryChange = ({ hex }) => {
         props.changeTheme({
             palette: {
-                ...props.theme.currentTheme.palette,
                 primary: {
                     main: hex
                 }
@@ -22,7 +21,6 @@ const Theme = props => {
     const handleSecondaryChange = ({ hex }) => {
         props.changeTheme({
             palette: {
-                ...props.theme.currentTheme.palette,
                 secondary: {
                     main: hex
                 }
