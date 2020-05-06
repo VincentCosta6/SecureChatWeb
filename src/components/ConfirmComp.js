@@ -28,7 +28,13 @@ export default props => {
                 {
                     props.text.map((text, i) => {
                         return (
-                            <li key={i} >
+                            <li key={i} style = {{ display: "flex", alignItems: "center", marginBottom: 5 }} onClick = {_ => {
+                                const copy = checkMarks.slice()
+
+                                copy[i] = !copy[i]
+
+                                setCheckmarks(copy)
+                            }}>
                                 <Checkbox 
                                     checked = {checkMarks[i]} 
                                     onChange = {handleChange} 
@@ -36,7 +42,9 @@ export default props => {
                                     style={{ margin: "15px 0" }} 
                                     name = {i + ""}
                                 />
-                                {text}
+                                <div>
+                                    {text}
+                                </div>
                             </li>
                         )
                     })

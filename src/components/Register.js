@@ -239,9 +239,8 @@ const Register = props => {
         <>
             <ConfirmComp
                 title="Warning!"
-                text={["Registering on this website will only create a temporary account, switch to the desktop or mobile app to create a permanent account",
-                    "Registering may take a long time on slower computers, and the program may become unresponsive for a while",
-                    "Registering on this website may result in the loss or theft of your private key, try switching to the desktop app"]}
+                text={["This only creates a temporary account",
+                    "This app needs permissions in order to work"]}
                 open={isOpen}
                 onCancel={handleCancel}
                 onProceed={handleProceed}
