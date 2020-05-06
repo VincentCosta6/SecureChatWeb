@@ -51,14 +51,16 @@ export const openIndexDB = data => dispatch => {
         const stored = localStorage.getItem("user")
 
         if(stored && stored.length > 4) {
-            const userDataStore = store.getState().indexdb.db.transaction(["user_data"]).objectStore("user_data")
+            const transaction = store.getState().indexdb.db.transaction(["user_data", "themes"])
+            
+            const userDataStore = transaction.objectStore("user_data")
             let request = userDataStore.get(stored)
     
             let result = await dbQueryPromise(request)
     
             store.dispatch(loadUser(result.target.result))
 
-            const themeDataStore = store.getState().indexdb.db.transaction(["themes"]).objectStore("themes")
+            const themeDataStore = transaction.objectStore("themes")
             request = themeDataStore.get(stored)
     
             result = await dbQueryPromise(request)
