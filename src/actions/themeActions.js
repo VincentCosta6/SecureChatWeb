@@ -1,4 +1,6 @@
-import { createMuiTheme } from "@material-ui/core"
+import store from "../store"
+
+import { dbQueryPromise } from "../utility/indexDBWrappers"
 
 export const GET_THEMES = "GET_THEMES"
 export const CHANGE_THEME = "CHANGE_THEME"
@@ -20,6 +22,13 @@ export const getThemes = _ => dispatch => {
 }
 
 export const changeTheme = theme => dispatch => {
+    const saveState = async _ => {
+        const themeDataStore = store.getState().indexdb.db.transaction(["themes"], "readwrite").objectStore("themes")
+        const request = themeDataStore.put({ username: localStorage.getItem("user"), theme })
+    }
+    
+    saveState()
+
     dispatch({
         type: CHANGE_THEME,
         theme

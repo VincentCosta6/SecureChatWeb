@@ -1,5 +1,6 @@
 import store from "../store"
 import { loadUser } from "./userActions"
+import { changeTheme } from "./themeActions"
 import { dbQueryPromise } from "../utility/indexDBWrappers"
 import { GiTorpedo } from "react-icons/gi"
 
@@ -51,11 +52,19 @@ export const openIndexDB = data => dispatch => {
 
         if(stored && stored.length > 4) {
             const userDataStore = store.getState().indexdb.db.transaction(["user_data"]).objectStore("user_data")
-            const request = userDataStore.get(stored)
+            let request = userDataStore.get(stored)
     
-            const result = await dbQueryPromise(request)
+            let result = await dbQueryPromise(request)
     
             store.dispatch(loadUser(result.target.result))
+
+            const themeDataStore = store.getState().indexdb.db.transaction(["themes"]).objectStore("themes")
+            request = themeDataStore.get(stored)
+    
+            result = await dbQueryPromise(request)
+
+            if(result.target.result)
+                store.dispatch(changeTheme(result.target.result.theme))
         }
     }
 
@@ -70,6 +79,8 @@ export const openIndexDB = data => dispatch => {
         const channel_keystore = db.createObjectStore("channel_keystore", { keyPath: "channel_id" })
 
         const user_data = db.createObjectStore("user_data", { keyPath: "_id" })
+
+        const themes = db.createObjectStore("themes", { keyPath: "username" })
 
         dispatch({
             type: UPGRADE_DB

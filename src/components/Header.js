@@ -216,8 +216,6 @@ const Header = props => {
         return <h1 style={{ margin: "0 15px", color: theme.palette.text.primary, fontSize: "1.5rem" }}>{props.channelName || "Channels"}</h1>
     }
 
-    console.log(theme)
-
     return (
         <div style={{ ...containerStyle, backgroundColor: theme.palette.background.paper, boxShadow: "0px 0px 6px 1px gray", position: "sticky", top: 0 }}>
             <div style={{ display: "flex", alignItems: "center", width: 200, minWidth: 200 }}>
