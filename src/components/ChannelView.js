@@ -15,7 +15,9 @@ import {
     TextField, 
     Button, 
     CircularProgress, 
-    Divider 
+    Divider,
+    Menu,
+    MenuItem
 } from "@material-ui/core"
 import { FiPaperclip } from "react-icons/fi"
 
@@ -35,6 +37,9 @@ const ChannelView = props => {
 
     const [optionsMenu, setOptionsMenu] = useState(false)
     const [cancelNextPress, setCancelNextPress] = useState(false)
+
+    const buttonRef = useRef(null)
+    const [anchorEl, setAnchorEl] = useState(null)
 
     const currentChannel = props.channels.channels[props.channels.activeChannel]
     const users = Object.keys(currentChannel.privateKeys).map(key => key)
@@ -194,6 +199,8 @@ const ChannelView = props => {
     const handleLongPress = _ => {
         setCancelNextPress(true)
         setOptionsMenu(true)
+
+        setAnchorEl(buttonRef.current)
     }
 
     const handleRegularPress = _ => {
@@ -209,6 +216,18 @@ const ChannelView = props => {
 
     return (
         <div style = {{ flex: 1, display: "flex", flexDirection: "column", height: "100%", backgroundColor: theme.palette.background.default }}>
+            <Menu
+                id = "simple-menu"
+                anchorEl = {anchorEl}
+                keepMounted
+                open = {Boolean(anchorEl)}
+                onClose = {_ => setAnchorEl(null)}
+            >
+                <MenuItem onClick={_ => {}}>
+                    <FiPaperclip size = {23} style = {{ marginRight: 5 }} color = "primary" />
+                    Send File
+                </MenuItem>
+            </Menu>
             <div style = {{ flex: "1 1 auto", display: "flex", flexDirection: "column", overflowY: "auto" }} id = "message-scroll-here">
                 { _renderMessages() }
                 { typers.map(typer => <p key = {typer.WhoTypingID}>{typer.WhoTypingUsername} is typing...</p>) }
@@ -231,6 +250,7 @@ const ChannelView = props => {
                         { ...sendButtonLongPress }
                         onClick = {handleRegularPress}
                         onBlur = {_ => setOptionsMenu(false)}
+                        ref = {buttonRef}
                     >
                         Send
                     </Button>
