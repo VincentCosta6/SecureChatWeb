@@ -9,18 +9,13 @@ import { MuiThemeProvider, useTheme, CircularProgress } from "@material-ui/core"
 
 import store from "./store"
 
-import Header from "./components/Header"
-
-import Login from "./components/Login"
-import Register from "./components/Register"
-import Messages from "./components/Container"
-
 import { createBrowserHistory } from "history"
+
+import Routes from "./Routes"
 
 const history = createBrowserHistory()
 
-function App() {
-    const theme = useTheme()
+function App(props) {
     const [checkingExist, setCheckingExist] = useState(true)
 
     useEffect(_ => {
@@ -67,24 +62,12 @@ function App() {
     return (
         <Provider store = {store}>
             <Router history = {history}>
-                <MuiThemeProvider theme = {theme}>
-                    <div style = {{ height: "100vh", display: "flex", flexDirection: "column" }}>
-                        { <Header /> }
-                        <div style = {{ display: "flex", flex: 1, height: "90%" }}>
-                            <Switch>
-                                {/*<Route exact path = "/login" component = {Login} />*/}
-                                <Route exact path = "/" component = {Register} />
-
-                                <Route exact path = "/register" component = {Register} />
-
-                                <Route exact path = "/messages" component = {Messages} />
-                            </Switch>
-                        </div>
-                    </div>
-                </MuiThemeProvider>
+                <Routes />
             </Router>
         </Provider>
     )
 }
+
+
 
 export default App

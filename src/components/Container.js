@@ -39,6 +39,7 @@ const useStyles = makeStyles({
         justifyContent: "center",
         alignItems: "center",
         textAlign: "center",
+        backgroundColor: theme.palette.background.paper,
 
         "& div": {
             textAlign: "center", 

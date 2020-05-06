@@ -182,6 +182,7 @@ const ChannelView = props => {
                     otherColor = {theme.palette.secondary.main}
                     otherText = {theme.palette.secondary.contrastText}
                     backgroundText = {theme.palette.text.primary}
+                    backgroundColor = {theme.palette.background.paper}
                     fileDownloaded = {fileDownloaded}
                 />
             )
