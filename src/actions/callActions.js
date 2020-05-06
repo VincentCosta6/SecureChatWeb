@@ -29,6 +29,22 @@ export const startCall = (constraints, activeChannel, user_id, username, type) =
 
                 console.log(users)
 
+                dispatch({
+                    type: START_CALL,
+                    peer,
+                    stream,
+                    data: {
+                        whoID: user_id,
+                        whoUsername: username,
+                        
+                        call_type: type,
+                        channel_id: currentChannel._id,
+                        channel_name: currentChannel.Name,
+
+                        users,
+                    }
+                })
+
                 const audioElement = document.querySelector("video#localVideo")
                 audioElement.srcObject = stream
 
@@ -80,21 +96,7 @@ export const startCall = (constraints, activeChannel, user_id, username, type) =
                     })
                 })
 
-                dispatch({
-                    type: START_CALL,
-                    peer,
-                    stream,
-                    data: {
-                        whoID: user_id,
-                        whoUsername: username,
-                        
-                        call_type: type,
-                        channel_id: currentChannel._id,
-                        channel_name: currentChannel.Name,
-
-                        users,
-                    }
-                })
+                
             })
             .catch(err => {
                 console.error(err)

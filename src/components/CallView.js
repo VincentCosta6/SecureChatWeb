@@ -37,7 +37,6 @@ import { connect } from "react-redux"
 
 const CallView = props => {
     const theme = useTheme()
-    const [callActive, setCallActive] = useState(false)
 
     const [data, setData] = useState({})
     const [microphoneActive, setMicrophoneActive] = useState(true)
@@ -60,14 +59,12 @@ const CallView = props => {
     }
 
     const handleCall = (constraints, data) => {
-        setCallActive(true)
         setAnchorEl(null)
 
         props.startCall(constraints, props.channels.activeChannel, props.user._id, props.user.username, data.type)
     }
 
     const handleHangUp = _ => {
-        setCallActive(false)
         props.endCall()
     }
 
@@ -239,7 +236,7 @@ const CallView = props => {
                 }
             </Dialog>
             <Dialog
-                open={callActive || props.call.currentCall ? true : false}
+                open={Boolean(props.call.currentCall)}
                 onClose={handleHangUp}
                 aria-labelledby="form-dialog-title"
                 fullScreen
