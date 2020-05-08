@@ -30,7 +30,7 @@ export const openIndexDB = data => dispatch => {
         return
     }
 
-    let request = window.indexedDB.open("securechat", 4)
+    let request = window.indexedDB.open("securechat", 5)
 
     let firstReq = true
 
@@ -73,19 +73,43 @@ export const openIndexDB = data => dispatch => {
     request.onupgradeneeded = event => {
         const db = event.target.result
 
-        const channels = db.createObjectStore("channels", { keyPath: "channel_id" })
-        channels.createIndex("channel_name", "channel_name", { unique: false })
+        const set = DOMStringListToSet(db.objectStoreNames)
 
-        const keystore = db.createObjectStore("keystore", { keyPath: "username" })
+        console.log(set)
 
-        const channel_keystore = db.createObjectStore("channel_keystore", { keyPath: "channel_id" })
+        if(!set.has("channels")) {
+            const channels = db.createObjectStore("channels", { keyPath: "channel_id" })
+            channels.createIndex("channel_name", "channel_name", { unique: false })
+        }
 
-        const user_data = db.createObjectStore("user_data", { keyPath: "_id" })
+        if(!set.has("keystore")) {
+            const keystore = db.createObjectStore("keystore", { keyPath: "username" })
+        }
 
-        const themes = db.createObjectStore("themes", { keyPath: "username" })
+        if(!set.has("channel_keystore")) {
+            const channel_keystore = db.createObjectStore("channel_keystore", { keyPath: "channel_id" })
+        }
+
+        if(!set.has("user_data")) {
+            const user_data = db.createObjectStore("user_data", { keyPath: "_id" })
+        }
+
+        if(!set.has("themes")) {
+            const themes = db.createObjectStore("themes", { keyPath: "username" })
+        }
 
         dispatch({
             type: UPGRADE_DB
         })
     }
+}
+
+function DOMStringListToSet(DomStringList) {
+    const set = new Set()
+
+    for(let key of DomStringList) {
+        set.add(key)
+    }
+
+    return set
 }
