@@ -1,5 +1,7 @@
 import Peer from "simple-peer"
 
+import { authReq } from "../axios-auth"
+
 import store from "../store"
 import { sendData } from "./socketActions"
 
@@ -18,16 +20,15 @@ export const LEAVE_CALL = "LEAVE_CALL"
 
 export const startCall = (constraints, activeChannel, user_id, username, type) => dispatch => {
     navigator.mediaDevices.getUserMedia(constraints)
-            .then(stream => {
+            .then(async stream => {
                 const peer = new Peer({ initiator: true, stream, trickle: false })
                 const currentChannel = store.getState().channels.channels[activeChannel]
                 let users = Object.keys(currentChannel.privateKeys).map(key => key)
 
-                console.log(users)
-
                 users = users.filter(user => store.getState().user._id !== user)
 
-                console.log(users)
+                const res = await authReq(localStorage.getItem("token"))
+                    .post("https://servicetechlink.com/call", JSON.stringify({ ChannelID: currentChannel._id, Type: type }))
 
                 dispatch({
                     type: START_CALL,
