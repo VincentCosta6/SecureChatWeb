@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react"
 
-import { connect } from "react-redux"
+import { useSelector, connect } from "react-redux"
 import { withTheme, useTheme } from "@material-ui/core"
 
 import axios, { authReq } from "../axios-auth"
-import { randomBytes } from "crypto"
+import { buf2hex, str2ab } from "../utility/conversions"
 import { dbQueryPromise } from "../utility/indexDBWrappers"
-
-import forge from "node-forge"
 
 import { FiPlus, FiMinusCircle } from "react-icons/fi"
 import {
@@ -25,10 +23,13 @@ import {
 } from "@material-ui/core"
 import { Autocomplete } from "@material-ui/lab/"
 
-const RSA = forge.pki.rsa
-
 const CreateChannel = props => {
     const theme = useTheme()
+
+    const { user, indexdb } = useSelector(state => ({
+        user: state.user,
+        indexdb: state.indexdb
+    }))
 
     const [formOpen, setOpen] = useState(false)
 
@@ -66,55 +67,34 @@ const CreateChannel = props => {
         setErrorText("")
         setRequestLoading(true)
 
-        function buf2hex(buffer) { // buffer is an ArrayBuffer
-            return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
-        }
-        function str2ab(str) {
-            const buf = new ArrayBuffer(str.length);
-            const bufView = new Uint8Array(buf);
-            for (let i = 0, strLen = str.length; i < strLen; i++) {
-                bufView[i] = str.charCodeAt(i);
-            }
-            return buf;
-        }
-
         const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"])
 
-        const exported = await crypto.subtle.exportKey("raw", key)
-
-        console.log(buf2hex(exported))
-
-        const keyStore = props.indexdb.db.transaction(["keystore"]).objectStore("keystore")
-        const request = keyStore.get(props.user.username)
+        const keyStore = indexdb.db.transaction(["keystore"]).objectStore("keystore")
+        const request = keyStore.get(user.username)
 
         const result = await dbQueryPromise(request)
-
         const value = result.target.result
 
         const myWrappedKey = await crypto.subtle.wrapKey("raw", key, value.keys.publicKey, "RSA-OAEP")
 
-        console.log(buf2hex(myWrappedKey))
-
         const privateKeys = {}
         const userMap = {}
 
-        privateKeys[props.user._id] = buf2hex(myWrappedKey)
-        userMap[props.user._id]     = props.user.username
+        privateKeys[user._id] = buf2hex(myWrappedKey)
+        userMap[user._id]     = user.username
 
-        await Promise.all(selectedUsers.map(async user => {
+        await Promise.all(selectedUsers.map(async userList => {
             const pemHeader = "-----BEGIN PUBLIC KEY-----";
             const pemFooter = "-----END PUBLIC KEY-----";
-            const pemContents = user.publicKey.substring(pemHeader.length + 1, user.publicKey.length - pemFooter.length - 1);
+            const pemContents = userList.publicKey.substring(pemHeader.length + 1, userList.publicKey.length - pemFooter.length - 1);
 
             const userKey = await crypto.subtle.importKey("spki", str2ab(atob(pemContents)), { name: "RSA-OAEP", hash: "SHA-256" }, true, ["wrapKey"])
 
             const userWrappedKey = await crypto.subtle.wrapKey("raw", key, userKey, "RSA-OAEP")
 
-            privateKeys[user._id] = buf2hex(userWrappedKey)
-            userMap[user._id]     = user.username
+            privateKeys[userList._id] = buf2hex(userWrappedKey)
+            userMap[userList._id]     = userList.username
         }))
-
-        console.log(privateKeys)
 
         const channelObj = {
             name: channelName,
@@ -151,10 +131,10 @@ const CreateChannel = props => {
                 .then(data => {
                     const set = new Set()
 
-                    for (let user of selectedUsers)
-                        set.add(user.username)
+                    for (let userList of selectedUsers)
+                        set.add(userList.username)
 
-                    setFoundUsers(data.data.results.filter(user => user.username !== props.user.username && !set.has(user.username)))
+                    setFoundUsers(data.data.results.filter(userList => userList.username !== user.username && !set.has(userList.username)))
                     setSearchLoading(false)
                 })
                 .catch(_err => { })
@@ -251,33 +231,4 @@ const CreateChannel = props => {
     )
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.user,
-        indexdb: state.indexdb
-    }
-}
-
-export default connect(mapStateToProps, {})(withTheme(CreateChannel))
-
-function removeLines(str) {
-    return str.replace("\n", "");
-}
-
-function base64ToArrayBuffer(b64) {
-    var byteString = window.atob(b64);
-    var byteArray = new Uint8Array(byteString.length);
-    for (var i = 0; i < byteString.length; i++) {
-        byteArray[i] = byteString.charCodeAt(i);
-    }
-
-    return byteArray;
-}
-
-function pemToArrayBuffer(pem) {
-    var b64Lines = removeLines(pem);
-    var b64Prefix = b64Lines.replace('-----BEGIN PUBLIC KEY-----', '');
-    var b64Final = b64Prefix.replace('-----END PUBLIC KEY-----', '');
-
-    return base64ToArrayBuffer(b64Final);
-}
+export default withTheme(CreateChannel)
