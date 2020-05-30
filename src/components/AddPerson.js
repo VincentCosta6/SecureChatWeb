@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react"
 
-import { connect } from "react-redux"
+import { useSelector } from "react-redux"
 import { withTheme, useTheme } from "@material-ui/core"
 
 import axios, { authReq } from "../axios-auth"
+import { buf2hex, str2ab } from "../utility/conversions"
 
 import { FiPlus, FiMinusCircle } from "react-icons/fi"
-import { MdPerson } from "react-icons/md"
 import {
     Dialog,
     DialogTitle,
@@ -22,8 +22,16 @@ import {
 } from "@material-ui/core"
 import { Autocomplete } from "@material-ui/lab/"
 
+const pemHeader = "-----BEGIN PUBLIC KEY-----"
+const pemFooter = "-----END PUBLIC KEY-----"
+
 const AddPerson = props => {
     const theme = useTheme()
+
+    const { user, channels } = useSelector(state => ({
+        user: state.user,
+        channels: state.channels
+    }))
 
     const [searchUser, setSearchUser] = useState("")
 
@@ -41,33 +49,18 @@ const AddPerson = props => {
             return
         }
 
-        const currentChannel = props.channels.channels[props.channels.activeChannel]
+        const currentChannel = channels.channels[channels.activeChannel]
 
         setErrorText("")
         setRequestLoading(true)
-
-        function buf2hex(buffer) { // buffer is an ArrayBuffer
-            return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
-        }
-        function str2ab(str) {
-            const buf = new ArrayBuffer(str.length);
-            const bufView = new Uint8Array(buf);
-            for (let i = 0, strLen = str.length; i < strLen; i++) {
-                bufView[i] = str.charCodeAt(i);
-            }
-            return buf;
-        }
 
         const privateKeys = {}
         const userMap = {}
 
         await Promise.all(selectedUsers.map(async user => {
-            const pemHeader = "-----BEGIN PUBLIC KEY-----";
-            const pemFooter = "-----END PUBLIC KEY-----";
             const pemContents = user.publicKey.substring(pemHeader.length + 1, user.publicKey.length - pemFooter.length - 1);
 
             const userKey = await crypto.subtle.importKey("spki", str2ab(atob(pemContents)), { name: "RSA-OAEP", hash: "SHA-256" }, true, ["wrapKey"])
-
             const userWrappedKey = await crypto.subtle.wrapKey("raw", currentChannel.AESKey, userKey, "RSA-OAEP")
 
             privateKeys[user._id] = buf2hex(userWrappedKey)
@@ -80,7 +73,7 @@ const AddPerson = props => {
             userMap
         }
 
-        authReq(props.user.token).post("https://servicetechlink.com/channel/add/user", JSON.stringify(addUserForm))
+        authReq(user.token).post("https://servicetechlink.com/channel/add/user", JSON.stringify(addUserForm))
             .then(_data => {
                 setRequestLoading(false)
                 props.handleClose()
@@ -106,16 +99,16 @@ const AddPerson = props => {
         if(searchUser !== "") {
             setSearchLoading(true)
             axios.get("https://servicetechlink.com/like/users/" + searchUser)
-            .then(data => {
-                const set = new Set()
+                .then(data => {
+                    const set = new Set()
 
-                for(let user of selectedUsers) 
-                    set.add(user.username)
+                    for(let user of selectedUsers) 
+                        set.add(user.username)
 
-                setFoundUsers(data.data.results.filter(user => user.username !== props.user.username && !set.has(user.username)))
-                setSearchLoading(false)
-            })
-            .catch(_err => { })
+                    setFoundUsers(data.data.results.filter(userList => userList.username !== user.username && !set.has(userList.username)))
+                    setSearchLoading(false)
+                })
+                .catch(_err => { })
         }
     }, [searchUser])
 
@@ -191,11 +184,4 @@ const AddPerson = props => {
     )
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.user,
-        channels: state.channels
-    }
-}
-
-export default connect(mapStateToProps, {})(withTheme(AddPerson))
+export default withTheme(AddPerson)
