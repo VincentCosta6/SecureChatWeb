@@ -4,7 +4,7 @@ import { useTheme } from "@material-ui/core"
 
 import { acceptCall, declineCall, startCall, endCall } from "../actions/callActions"
 
-import { FiPhone, FiPhoneOff, FiVideo } from "react-icons/fi"
+import { FiPhone, FiVideo } from "react-icons/fi"
 import { FaPhone, FaMicrophone, FaMicrophoneSlash, FaUserAlt, FaBolt } from "react-icons/fa"
 import { GiSpeaker } from "react-icons/gi"
 import { BsThreeDotsVertical } from "react-icons/bs"
@@ -18,6 +18,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    Menu,
+    MenuItem
 } from "@material-ui/core"
 import Draggable from "react-draggable"
 
@@ -37,7 +39,6 @@ const CallView = props => {
         call: state.call
     }))
 
-    const [data, setData] = useState({})
     const [microphoneActive, setMicrophoneActive] = useState(true)
 
     const handleVoiceCall = _ => {
@@ -133,13 +134,6 @@ const CallView = props => {
                         <BsThreeDotsVertical onClick = {handleOptionsClick} aria-controls = "simple-menu" size = {30} color = {theme.palette.primary.main} style = {{ cursor: "pointer" }} /> }
                     </>
             }
-            {/*
-                connection.websocketConnected ?
-                <FaBolt color={theme.palette.primary.main} size={23} title="Websocket is open" /> :
-                <div onClick={_ => openWebsocket(user.token)}>
-                    <FaBolt color="red" size={30} title="Websocket is closed" />
-                </div>
-            */}
             <AddPerson
                 open = {addVisible}
                 handleClose = {handleClose}
