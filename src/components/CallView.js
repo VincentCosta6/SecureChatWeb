@@ -5,7 +5,7 @@ import { useTheme } from "@material-ui/core"
 import { acceptCall, declineCall, startCall, endCall } from "../actions/callActions"
 
 import { FiPhone, FiVideo } from "react-icons/fi"
-import { FaPhone, FaMicrophone, FaMicrophoneSlash, FaUserAlt, FaBolt } from "react-icons/fa"
+import { FaPhone, FaMicrophone, FaMicrophoneSlash, FaUserAlt } from "react-icons/fa"
 import { GiSpeaker } from "react-icons/gi"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import { MdSpeakerNotesOff } from "react-icons/md"
@@ -77,20 +77,10 @@ const CallView = props => {
 
     const getTitle = _ => {
         if(call.incomingCall) {
-            if(call.incomingCall.call_type) {
-                return call.incomingCall.call_type
-            }
-            else {
-                return call.incomingCall.Call_Type
-            }
+            return call.incomingCall[call.incomingCall.call_type ? "call_type" : "Call_Type"]
         }
         else if(call.currentCall) {
-            if(call.currentCall.call_type) {
-                return call.currentCall.call_type
-            }
-            else {
-                return call.currentCall.Call_Type
-            }
+            return call.currentCall[call.currentCall.call_type ? "call_type" : "Call_Type"]
         }
         else return ""
     }
@@ -109,8 +99,6 @@ const CallView = props => {
         const channelID = channels.channels[channels.activeChannel]._id
 
         const res = await authReq(localStorage.getItem("token")).delete("https://servicetechlink.com/channel/leave", { data: { channelID } })
-
-        console.log(res)
     }
 
     const [anchorEl, setAnchorEl] = useState(null)
@@ -128,11 +116,14 @@ const CallView = props => {
     return (
         <>
             {
-                connection.websocketConnected && 
-                    <>
-                        { channels.activeChannel !== -1 && 
-                        <BsThreeDotsVertical onClick = {handleOptionsClick} aria-controls = "simple-menu" size = {30} color = {theme.palette.primary.main} style = {{ cursor: "pointer" }} /> }
-                    </>
+                connection.websocketConnected && channels.activeChannel !== -1 &&
+                    <BsThreeDotsVertical 
+                        onClick = {handleOptionsClick} 
+                        aria-controls = "simple-menu" 
+                        size = {30} 
+                        color = {theme.palette.primary.main} 
+                        style = {{ cursor: "pointer" }} 
+                    />
             }
             <AddPerson
                 open = {addVisible}
@@ -178,7 +169,7 @@ const CallView = props => {
                 style = {{ backgroundColor: "black" }}
             >
                 { 
-                    call.incomingCall && call.incomingCall ?
+                    call.incomingCall && call.incomingCall &&
                         <>
                             <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>{call.incomingCall.Call_Type} call</DialogTitle>
                             <DialogContent style = {{ backgroundColor: "black", overflow: "none", color: "white", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
@@ -224,8 +215,6 @@ const CallView = props => {
                                 </div>
                             </DialogActions>
                         </>
-                        :
-                        <div></div>
                 }
             </Dialog>
             <Dialog
