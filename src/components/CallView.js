@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 
-import { withTheme, useTheme } from "@material-ui/core"
+import { useTheme } from "@material-ui/core"
 
-import { sendData } from "../actions/socketActions"
 import { acceptCall, declineCall, startCall, endCall } from "../actions/callActions"
 
 import { FiPhone, FiPhoneOff, FiVideo } from "react-icons/fi"
@@ -18,25 +17,25 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogContentText,
-    Divider,
-    TextField,
     DialogActions,
-    Button,
-    CircularProgress,
-    List,
-    ListItem,
-    Menu,
-    MenuItem
 } from "@material-ui/core"
 import Draggable from "react-draggable"
 
 import { authReq } from "../axios-auth"
 
-import { connect } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 
 const CallView = props => {
     const theme = useTheme()
+    const dispatch = useDispatch()
+
+    const { user, connection, channels, websocket, call } = useSelector(state => ({
+        user: state.user,
+        connection: state.connection,
+        channels: state.channels,
+        websocket: state.websocket,
+        call: state.call
+    }))
 
     const [data, setData] = useState({})
     const [microphoneActive, setMicrophoneActive] = useState(true)
@@ -61,35 +60,35 @@ const CallView = props => {
     const handleCall = (constraints, data) => {
         setAnchorEl(null)
 
-        props.startCall(constraints, props.channels.activeChannel, props.user._id, props.user.username, data.type)
+        dispatch(startCall(constraints, channels.activeChannel, user._id, user.username, data.type))
     }
 
     const handleHangUp = _ => {
-        props.endCall()
+        dispatch(endCall())
     }
 
     const toggleMicrophone = _ => {
-        for(let stream of props.call.stream.getAudioTracks()) {
+        for(let stream of call.stream.getAudioTracks()) {
             stream.enabled = !microphoneActive
             setMicrophoneActive(!microphoneActive)
         }
     }
 
     const getTitle = _ => {
-        if(props.call.incomingCall) {
-            if(props.call.incomingCall.call_type) {
-                return props.call.incomingCall.call_type
+        if(call.incomingCall) {
+            if(call.incomingCall.call_type) {
+                return call.incomingCall.call_type
             }
             else {
-                return props.call.incomingCall.Call_Type
+                return call.incomingCall.Call_Type
             }
         }
-        else if(props.call.currentCall) {
-            if(props.call.currentCall.call_type) {
-                return props.call.currentCall.call_type
+        else if(call.currentCall) {
+            if(call.currentCall.call_type) {
+                return call.currentCall.call_type
             }
             else {
-                return props.call.currentCall.Call_Type
+                return call.currentCall.Call_Type
             }
         }
         else return ""
@@ -106,7 +105,7 @@ const CallView = props => {
 
     const handleLeaveChannel = async _ => {
         setAnchorEl(null)
-        const channelID = props.channels.channels[props.channels.activeChannel]._id
+        const channelID = channels.channels[channels.activeChannel]._id
 
         const res = await authReq(localStorage.getItem("token")).delete("https://servicetechlink.com/channel/leave", { data: { channelID } })
 
@@ -128,16 +127,16 @@ const CallView = props => {
     return (
         <>
             {
-                props.connection.websocketConnected && 
+                connection.websocketConnected && 
                     <>
-                        { props.channels.activeChannel !== -1 && 
+                        { channels.activeChannel !== -1 && 
                         <BsThreeDotsVertical onClick = {handleOptionsClick} aria-controls = "simple-menu" size = {30} color = {theme.palette.primary.main} style = {{ cursor: "pointer" }} /> }
                     </>
             }
             {/*
-                props.connection.websocketConnected ?
+                connection.websocketConnected ?
                 <FaBolt color={theme.palette.primary.main} size={23} title="Websocket is open" /> :
-                <div onClick={_ => props.openWebsocket(props.user.token)}>
+                <div onClick={_ => openWebsocket(user.token)}>
                     <FaBolt color="red" size={30} title="Websocket is closed" />
                 </div>
             */}
@@ -161,7 +160,7 @@ const CallView = props => {
                     Mute Channel
                 </MenuItem>
                 {
-                    props.channels.activeChannel !== -1 && Object.keys(props.channels.channels[props.channels.activeChannel].privateKeys).length === 2 &&
+                    channels.activeChannel !== -1 && Object.keys(channels.channels[channels.activeChannel].privateKeys).length === 2 &&
                     <div>
                         <MenuItem onClick={handleVoiceCall}>
                             <FiPhone size = {23} color = {theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
@@ -179,22 +178,22 @@ const CallView = props => {
                 </MenuItem>
             </Menu>
             <Dialog
-                open = {props.call.incomingCall && props.call.incomingCall ? true : false}
+                open = {call.incomingCall && call.incomingCall ? true : false}
                 onClose = {handleHangUp}
                 fullScreen
                 style = {{ backgroundColor: "black" }}
             >
                 { 
-                    props.call.incomingCall && props.call.incomingCall ?
+                    call.incomingCall && call.incomingCall ?
                         <>
-                            <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>{props.call.incomingCall.Call_Type} call</DialogTitle>
+                            <DialogTitle id="form-dialog-title" style = {{ backgroundColor: "black", color: "white" }}>{call.incomingCall.Call_Type} call</DialogTitle>
                             <DialogContent style = {{ backgroundColor: "black", overflow: "none", color: "white", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                                <h1>Incoming {props.call.incomingCall.Call_Type} call</h1>
-                                <h2>Channel: {props.call.incomingCall.Channel_Name}</h2>
-                                <h3>Caller: {props.call.incomingCall.WhoUsername}</h3>
+                                <h1>Incoming {call.incomingCall.Call_Type} call</h1>
+                                <h2>Channel: {call.incomingCall.Channel_Name}</h2>
+                                <h3>Caller: {call.incomingCall.WhoUsername}</h3>
                             </DialogContent>
                             <DialogActions style = {{ backgroundColor: "black", display: "flex", justifyContent: "center" }}>
-                                <div onClick={_ => props.acceptCall(props.call.incomingCall, props.call.incomingCall.SignalData)} style = {{ 
+                                <div onClick={_ => dispatch(acceptCall(call.incomingCall, call.incomingCall.SignalData))} style = {{ 
                                     display: "flex",
                                     justifyContent: "center",
                                     alignItems: "center",
@@ -212,7 +211,7 @@ const CallView = props => {
                                 }}>
                                     <FaPhone color="white" style = {{ transform: "scaleX(-1)", width: "2.2vh", height: "2.2vh" }} />
                                 </div>
-                                <div onClick={props.declineCall} style = {{ 
+                                <div onClick={() => dispatch(declineCall())} style = {{ 
                                     display: "flex",
                                     justifyContent: "center",
                                     alignItems: "center",
@@ -236,7 +235,7 @@ const CallView = props => {
                 }
             </Dialog>
             <Dialog
-                open={Boolean(props.call.currentCall)}
+                open={Boolean(call.currentCall)}
                 onClose={handleHangUp}
                 aria-labelledby="form-dialog-title"
                 fullScreen
@@ -304,14 +303,4 @@ const CallView = props => {
     )
 }
 
-const mapStateToProps = state => {
-    return {
-        user: state.user,
-        connection: state.connection,
-        channels: state.channels,
-        websocket: state.websocket,
-        call: state.call
-    }
-}
-
-export default connect(mapStateToProps, { sendData, startCall, acceptCall, declineCall, endCall })(CallView)
+export default CallView
