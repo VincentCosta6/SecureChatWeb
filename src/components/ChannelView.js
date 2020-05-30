@@ -140,6 +140,8 @@ const ChannelView = props => {
             return <><h4>Loading and decrypting messages...</h4><CircularProgress size = {23} /></>
         }
         else return currentChannel.messages.map((e, index) => {
+            // TODO: This needs to be done when we receive the data in Redux
+
             let data = e.Encrypted
 
             if(typeof data === "string")
@@ -169,33 +171,29 @@ const ChannelView = props => {
                 }
             }
 
+            /*let time = false
+
+            if(!props.last) {
+                time = new Date(props.data.Timestamp)
+            } 
+            else if(new Date(props.last.Timestamp).getTime() <= new Date(props.data.Timestamp).getTime() - (3600 * 1000)) {
+                time = new Date(props.data.Timestamp)
+            }*/
+
+            const isMe = props.user.username === data.senderprops
+
             return (
                 <Message 
                     key = {e._id} 
-                    data = {e} 
-                    parsed = {data} 
-                    myself = {props.user.username} 
-                    last = {last} 
+                    className = {isMe ? "mine" : "other"}
+                    message = {data} 
+                    isStart = {false}
+                    isPrevSame = {false}
                     isLast = {isLast}
-                    myColor = {theme.palette.primary.main} 
-                    myText = {theme.palette.primary.contrastText}
-                    otherColor = {theme.palette.secondary.main}
-                    otherText = {theme.palette.secondary.contrastText}
-                    backgroundText = {theme.palette.text.primary}
-                    backgroundColor = {theme.palette.background.paper}
-                    fileDownloaded = {fileDownloaded}
                     isPersonalChat = {Object.keys(currentChannel.privateKeys).length === 2}
                 />
             )
         })
-    }
-
-    const fileChanged = _ => {
-        
-    }
-
-    const fileDownloaded = metadata => {
-        
     }
 
     const handleLongPress = _ => {
