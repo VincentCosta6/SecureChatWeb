@@ -34,19 +34,14 @@ const useStyles = makeStyles({
         justifyContent: "center",
         alignItems: "center",
         textAlign: "center",
-        backgroundColor: theme.palette.background.paper,
-
-        "& div": {
-            textAlign: "center", 
-            margin: "auto",
-            color: theme.palette.text.primary, 
-        }
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.getContrastText(theme.palette.background.default)
     })
 })
 
 const public_key = "BO47up6T_b3tELDFjeBPXNpUZZ45B5wcHgDKnsjI3ykGGW6q2b8qKFDfL4v8XBtDUlqOEKl2pfEcYg8nE9NIUqE"
 
-export const Container = props => {
+export const MessageContainer = props => {
     const theme = useTheme()
     const styles = useStyles({ theme })
     const dispatch = useDispatch()
@@ -214,4 +209,4 @@ export const Container = props => {
     )
 }
 
-export default withTheme(Container)
+export default withTheme(MessageContainer)
