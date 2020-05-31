@@ -4,7 +4,7 @@ import { connect } from "react-redux"
 import { withRouter } from "react-router"
 import { withTheme, useTheme } from "@material-ui/core/styles"
 
-import { setActive } from "../actions/channelActions"
+import { setActive } from "../../actions/channelActions"
 
 import Channel from "./Channel"
 import CreateChannel from "./CreateChannel"

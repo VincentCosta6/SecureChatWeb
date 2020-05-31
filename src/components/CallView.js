@@ -11,7 +11,7 @@ import { BsThreeDotsVertical } from "react-icons/bs"
 import { MdSpeakerNotesOff } from "react-icons/md"
 import { IoIosExit } from "react-icons/io"
 
-import AddPerson from "./AddPerson"
+import AddPerson from "./messages/AddPerson"
 
 import {
     Dialog,

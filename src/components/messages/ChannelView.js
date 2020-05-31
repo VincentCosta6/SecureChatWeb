@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef } from "react"
 
 import { connect } from "react-redux"
 import { withTheme, useTheme } from "@material-ui/core"
-import useLongPress from "../utility/useLongPress"
+import useLongPress from "../../utility/useLongPress"
 
-import { sendData } from "../actions/socketActions"
-import { encrypt } from "../actions/channelActions"
+import { sendData } from "../../actions/socketActions"
+import { encrypt } from "../../actions/channelActions"
 
-import { authReq } from "../axios-auth"
+import { authReq } from "../../axios-auth"
 
 import Message from "./Message"
 
@@ -26,7 +26,6 @@ const typingDurationSafety = 3000
 
 const ChannelView = props => {
     const theme = useTheme()
-    const fileRef = useRef(null)
     const inputRef = useRef(null)
 
     const sendButtonLongPress = useLongPress(_ => handleLongPress(), 500)
@@ -41,32 +40,16 @@ const ChannelView = props => {
     const buttonRef = useRef(null)
     const [anchorEl, setAnchorEl] = useState(null)
 
+    const [typers, setTypers] = useState([])
+
     const currentChannel = props.channels.channels[props.channels.activeChannel]
-    const users = Object.keys(currentChannel.privateKeys).map(key => key)
-    const typers = Object.keys(currentChannel.typers).map(key => currentChannel.typers[key]).filter(typer => typer.WhoTypingID !== props.user._id)
-    let typingText = " "
 
-    if(typers.length > 3) {
-        typingText = "Multiple people are typing"
-    }
-    else if(typers.length === 1) {
-        typingText = typers[0].WhoTypingUsername + " is typing"
-    }
-    else if(typers.length === 2) {
-        typingText = typers[0].WhoTypingUsername + " and " + typers[1].WhoTypingUsername + " are typing"
-    }
-    else if(typers.length > 2) {
-        /* eslint-disable prefer-const */
-        for(let i of typers) {
-            typingText += i.WhoTypingUsername
+    useEffect(() => {
+        const typers = Object.keys(currentChannel.typers).map(key => currentChannel.typers[key]).filter(typer => typer.WhoTypingID !== props.user._id)
 
-            if(i !== typers[typers.length - 1]) {
-                typingText += ", "
-            }
-        }
+        setTypers(typers)
+    }, [currentChannel.typers])
 
-        typingText += " are typing"
-    }
     useEffect(_ => {
         lastSend = null
 
@@ -101,9 +84,8 @@ const ChannelView = props => {
     }
 
     const sendTyping = _ => {
+        const users = Object.keys(currentChannel.privateKeys).map(key => key)
         const userCopy = [...users]
-
-        //delete userCopy[props.user._id]
 
         props.sendData(JSON.stringify({
             type: "IS_TYPING",
@@ -274,7 +256,6 @@ const ChannelView = props => {
                         Send
                     </Button>
                 </div>
-                {/*<h6 style = {{ margin: 0, marginLeft: 15, color: theme.palette.text.primary, minHeight: 15 }}>{typingText}</h6>*/}
             </div>
         </div>
     )

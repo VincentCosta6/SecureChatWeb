@@ -3,9 +3,9 @@ import React, { useState, useEffect } from "react"
 import { useSelector, connect } from "react-redux"
 import { withTheme, useTheme } from "@material-ui/core"
 
-import axios, { authReq } from "../axios-auth"
-import { buf2hex, str2ab } from "../utility/conversions"
-import { dbQueryPromise } from "../utility/indexDBWrappers"
+import axios, { authReq } from "../../axios-auth"
+import { buf2hex, str2ab } from "../../utility/conversions"
+import { dbQueryPromise } from "../../utility/indexDBWrappers"
 
 import { FiPlus, FiMinusCircle } from "react-icons/fi"
 import {

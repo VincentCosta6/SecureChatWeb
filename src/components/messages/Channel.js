@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 
 import { withTheme, useTheme, makeStyles } from "@material-ui/core"
 
-import { cutChars, formatMessageTime } from "../utility/conversions"
+import { cutChars, formatMessageTime } from "../../utility/conversions"
 
 import { Card } from "@material-ui/core"
 

@@ -13,10 +13,10 @@ import {
     askNotificationPermission,
   } from "../push_notifications/pushNotifs";
 
-import SidePanel from "./SidePanel"
-import ChannelView from "./ChannelView"
+import SidePanel from "./messages/SidePanel"
+import ChannelView from "./messages/ChannelView"
 
-import CreateChannel from "./CreateChannel"
+import CreateChannel from "./messages/CreateChannel"
 
 import { authReq } from "../axios-auth"
 

@@ -12,7 +12,7 @@ import { clearData } from "../actions/channelActions"
 
 import axios from "axios"
 
-import SidePanel from "./SidePanel"
+import SidePanel from "./messages/SidePanel"
 import CallView from "./CallView"
 
 import {
@@ -35,8 +35,6 @@ import {
     ListItemText,
     makeStyles,
 } from "@material-ui/core"
-
-//import AddPerson from "./AddPerson"
 
 let interval = null
 
