@@ -74,7 +74,7 @@ const Channel = props => {
                 { lastMessage && <p>{formatMessageTime(lastMessage.time)}</p> }
             </div>
             {lastMessage && <p className = {styles.subtitle}>{lastMessage.sender}: {lastMessage.message}</p>}
-            {lastMessage.message === "" && <p className = {styles.subtitle} style = {{ fontStyle: "italic" }}>No messages yet</p>}
+            {!lastMessage && <p className = {styles.subtitle} style = {{ fontStyle: "italic" }}>No messages yet</p>}
         </Card>
     )
 }

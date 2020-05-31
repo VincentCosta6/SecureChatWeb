@@ -66,10 +66,7 @@ const SidePanel = props => {
                     </Fragment>
                 )
                 else {
-                    return <h5 style = {{ 
-                        margin: "10px 0px 10px 15px", 
-                        color: theme.palette.getContrastText(theme.palette.background.paper) 
-                    }}>You arent in any channels</h5>
+                    return <></>
                 }
         }
     }
