@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 
 import { useTheme } from "@material-ui/core"
 
@@ -31,37 +31,40 @@ const CallView = props => {
     const theme = useTheme()
     const dispatch = useDispatch()
 
-    const { user, connection, channels, websocket, call } = useSelector(state => ({
+    const { user, connection, activeChannel, channels, call } = useSelector(state => ({
         user: state.user,
         connection: state.connection,
+        activeChannel: state.channels.activeChannel,
         channels: state.channels,
-        websocket: state.websocket,
         call: state.call
     }))
 
     const [microphoneActive, setMicrophoneActive] = useState(true)
+    const [isPersonal, setPersonal] = useState(false)
+
+    useEffect(() => {
+        if(channels.activeChannel !== -1) {
+            setPersonal(Object.keys(channels.channels[channels.activeChannel].privateKeys).length === 2)
+        }
+    }, [channels.activeChannel])
 
     const handleVoiceCall = _ => {
-        const constraints = {
+        handleCall({
             'audio': true,
-        }
-
-        handleCall(constraints, { type: "Voice" })
+        })
     }
 
     const handleVideoCall = _ => {
-        const constraints = {
+        handleCall({
             'audio': true,
             'video': true,
-        }
-
-        handleCall(constraints, { type: "Video" })
+        })
     }
 
-    const handleCall = (constraints, data) => {
+    const handleCall = constraints => {
         setAnchorEl(null)
 
-        dispatch(startCall(constraints, channels.activeChannel, user._id, user.username, data.type))
+        dispatch(startCall(constraints, channels.activeChannel, user._id, user.username))
     }
 
     const handleHangUp = _ => {
@@ -168,7 +171,7 @@ const CallView = props => {
     return (
         <>
             {
-                connection.websocketConnected && channels.activeChannel !== -1 &&
+                connection.websocketConnected && activeChannel !== -1 &&
                 <BsThreeDotsVertical
                     onClick={handleOptionsClick}
                     aria-controls="simple-menu"
@@ -197,7 +200,7 @@ const CallView = props => {
                     Mute Channel
                 </MenuItem>
                 {
-                    channels.activeChannel !== -1 && Object.keys(channels.channels[channels.activeChannel].privateKeys).length === 2 &&
+                    activeChannel !== -1 && isPersonal &&
                     <div>
                         <MenuItem onClick={handleVoiceCall}>
                             <FiPhone size={23} color={theme.palette.primary.main} style={{ cursor: "pointer", marginRight: 15 }} />
