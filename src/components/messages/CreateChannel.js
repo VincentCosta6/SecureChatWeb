@@ -153,19 +153,18 @@ const CreateChannel = props => {
                 open={formOpen}
                 onClose={handleClose}
                 aria-labelledby="form-dialog-title"
-                fullScreen = {props.width < 750}
+                fullScreen
+                style = {{ padding: props.width < 750 ? 0 : 50 }}
             >
                 <DialogTitle id="form-dialog-title">Create Channel</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        Create a channel and add unlimited users
-                    </DialogContentText>
                     <TextField
                         autoFocus
                         margin="dense"
                         id="name"
                         label="Channel Name"
                         type="text"
+                        variant = "outlined"
                         fullWidth
                         value={channelName}
                         onChange={event => setChannelName(event.target.value)}
