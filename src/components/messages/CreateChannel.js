@@ -222,7 +222,7 @@ const CreateChannel = props => {
                     {
                         requestLoading ?
                             <CircularProgress size={17} /> :
-                            <Button onClick={createChannel} variant="contained" color="primary">Create</Button>
+                            <Button onClick={createChannel} variant="contained" color="primary" disabled = {channelName === "" || selectedUsers.length === 0}>Create</Button>
                     }
                 </DialogActions>
             </Dialog>
