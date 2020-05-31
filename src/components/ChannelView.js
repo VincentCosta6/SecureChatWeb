@@ -156,7 +156,28 @@ const ChannelView = props => {
                     last.Encrypted = JSON.parse(currentChannel.messages[index - 1].Encrypted)
             }
 
-            let isLast = true
+            let isFirst = true, isLast = true
+            let time = false
+
+            if(!last) {
+                time = new Date(e.Timestamp)
+            } 
+            else if(new Date(last.Timestamp).getTime() <= new Date(e.Timestamp).getTime() - (3600 * 1000)) {
+                time = new Date(data.Timestamp)
+            }
+
+            if(index > 0) {
+                const last = currentChannel.messages[index - 1]
+
+                let parsed = last.Encrypted
+
+                if(typeof parsed === "string")
+                    parsed = JSON.parse(parsed)
+
+                if(parsed.sender === data.sender) {
+                    isFirst = false
+                }
+            }
 
             if(index < currentChannel.messages.length - 1) {
                 let next = currentChannel.messages[index + 1]
@@ -171,26 +192,24 @@ const ChannelView = props => {
                 }
             }
 
-            /*let time = false
+            const isMe = props.user.username === data.sender
+            const isPersonal = Object.keys(currentChannel.privateKeys).length === 2
 
-            if(!props.last) {
-                time = new Date(props.data.Timestamp)
-            } 
-            else if(new Date(props.last.Timestamp).getTime() <= new Date(props.data.Timestamp).getTime() - (3600 * 1000)) {
-                time = new Date(props.data.Timestamp)
-            }*/
+            const className = `${isMe ? "message-mine " : "message-yours "}${isFirst ? "start " : ""}${isLast ? "end" : ""}`
 
-            const isMe = props.user.username === data.senderprops
+            const showSender = !isPersonal && isFirst
 
             return (
                 <Message 
                     key = {e._id} 
-                    className = {isMe ? "mine" : "other"}
+                    className = {className}
                     message = {data} 
-                    isStart = {false}
-                    isPrevSame = {false}
-                    isLast = {isLast}
-                    isPersonalChat = {Object.keys(currentChannel.privateKeys).length === 2}
+                    timestamp = {e.Timestamp}
+                    time = {time}
+                    isMe = {isMe}
+                    isPersonal = {isPersonal}
+                    showSender = {showSender}
+                    theme = {theme}
                 />
             )
         })
