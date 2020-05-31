@@ -4,7 +4,7 @@ import { connect } from "react-redux"
 import { withRouter } from "react-router"
 import { withTheme, useTheme } from "@material-ui/core/styles"
 
-import { setActive } from "../actions/channelActions"
+import { setActive } from "../../actions/channelActions"
 
 import Channel from "./Channel"
 import CreateChannel from "./CreateChannel"
@@ -66,13 +66,13 @@ const SidePanel = props => {
                     </Fragment>
                 )
                 else {
-                    return <h5 style = {{ margin: "0px 0px 10px 15px" }}>You arent in any channels</h5>
+                    return <></>
                 }
         }
     }
 
     return (
-        <div className = {styles.container} style = {{ maxWidth: props.width && props.width <= 750 ? "" : "400px", borderRight: "1px solid black" }}>
+        <div className = {styles.container} style = {{ maxWidth: props.width && props.width <= 750 ? "" : "400px" }}>
             {_renderChannels()}
             
             <CreateChannel width = {props.width} />

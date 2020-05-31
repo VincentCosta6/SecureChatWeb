@@ -1,6 +1,8 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 
 import { withTheme, useTheme, makeStyles } from "@material-ui/core"
+
+import { cutChars, formatMessageTime } from "../../utility/conversions"
 
 import { Card } from "@material-ui/core"
 
@@ -31,25 +33,22 @@ const Channel = props => {
     const theme = useTheme()
     const styles = useStyles({ props, theme })
 
-    let lastMessage = ""
-    let sender = ""
-    let time = null
+    const [lastMessage, setLastMessage] = useState(false)
 
-    if (props.data.messages.length > 0) {
-        lastMessage = JSON.parse(props.data.messages[props.data.messages.length - 1].Encrypted)
+    useEffect(() => {
+        if (props.data.messages.length > 0) {
+            const lastMessage = props.data.messages[props.data.messages.length - 1]
 
-        sender = lastMessage.sender
+            const encrypted = JSON.parse(lastMessage.Encrypted)
+            const cut = cutChars(15, encrypted.content)
 
-        if(sender === props.myUsername) {
-            sender = "You"
+            setLastMessage({
+                message: cut,
+                sender: encrypted.sender === props.myUsername ? encrypted.sender : "You",
+                time: lastMessage.Timestamp
+            })
         }
-
-        time = props.data.messages[props.data.messages.length - 1].Timestamp
-
-        const message = cutChars(15, lastMessage.content)
-
-        lastMessage = message.newString + (message.continued ? "..." : "")
-    }
+    }, [props.data.messages.length])
 
     const clickCard = _ => {
         if(props.setDrawer)
@@ -72,37 +71,12 @@ const Channel = props => {
             <div style = {{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 { _renderChannelName() }
 
-                { time && <p>{formatMessageTime(time)}</p> }
+                { lastMessage && <p>{formatMessageTime(lastMessage.time)}</p> }
             </div>
-            {lastMessage !== "" && <p className = {styles.subtitle}>{sender}: {lastMessage}</p>}
-            {lastMessage === "" && <p className = {styles.subtitle} style = {{ fontStyle: "italic" }}>No messages yet</p>}
+            {lastMessage && <p className = {styles.subtitle}>{lastMessage.sender}: {lastMessage.message}</p>}
+            {!lastMessage && <p className = {styles.subtitle} style = {{ fontStyle: "italic" }}>No messages yet</p>}
         </Card>
     )
 }
 
 export default withTheme(Channel)
-
-function cutChars(allowedAmount, string) {
-    let newString = ""
-
-    for (let i = 0; i < allowedAmount && i < string.length; i++) newString += string[i]
-
-    return { newString, continued: string.length > allowedAmount }
-}
-
-function formatMessageTime(time) {
-    const date = new Date(time)
-
-    let minute = date.getMinutes()
-
-    if(minute === 0) minute = "00"
-    else if (minute <= 9) minute = "0" + minute
-
-    const ampm = date.getHours() <= 11 ? "AM" : "PM"
-
-    let hour = ampm === "AM" ? date.getHours() : date.getHours() - 12
-
-    if(hour === 0) hour = "12"
-
-    return hour + ":" + minute + " " + ampm
-}

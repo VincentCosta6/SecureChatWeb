@@ -12,7 +12,7 @@ import { clearData } from "../actions/channelActions"
 
 import axios from "axios"
 
-import SidePanel from "./SidePanel"
+import SidePanel from "./messages/SidePanel"
 import CallView from "./CallView"
 
 import {
@@ -35,8 +35,6 @@ import {
     ListItemText,
     makeStyles,
 } from "@material-ui/core"
-
-//import AddPerson from "./AddPerson"
 
 let interval = null
 
@@ -68,36 +66,6 @@ const Header = props => {
     const updateWindowWidth = _ => {
         setWidth(window.innerWidth)
     }
-
-    /*useEffect(_ => {
-        pingServer(props)
-        clearInterval(interval)
-        interval = setInterval(_ => pingServer(props), 10000)
-
-        return _ => {
-            clearInterval(interval)
-            interval = null
-        }
-    }, [props])
-
-    const pingServer = props => {
-        if(!props.connection.websocketConnected)
-            axios.get("https://servicetechlink.com/ping", {
-                timeout: 5000
-            })
-                .then(data => {
-                    if (data.status === 200) {
-                        if (props.connection.serverConnected === false) {
-                            props.setServerStatus(true)
-                        }
-                    }
-                })
-                .catch(_err => {
-                    if (props.connection.serverConnected) {
-                        props.setServerStatus(false)
-                    }
-                })
-    }*/
 
     const sidePanel = _ => {
         const isActiveMessages = props.history.location.pathname === "/messages"
@@ -197,11 +165,6 @@ const Header = props => {
         }
     }
 
-    let name = ""
-
-    if (props.history.location.pathname === "/messages") name = "Messages"
-    else if (props.history.location.pathname === "/settings") name = "Settings"
-
     if(!props.connection.websocketConnected || !props.channels.CHANNELS_LOADED) {
         return <></>
     }
@@ -217,7 +180,7 @@ const Header = props => {
     }
 
     return (
-        <div style={{ ...containerStyle, backgroundColor: theme.palette.background.paper, boxShadow: "0px 0px 6px 1px gray", position: "sticky", top: 0 }}>
+        <div style={{ ...containerStyle, backgroundColor: theme.palette.background.paper, boxShadow: `0px 0px 6px 1px ${theme.palette.background.default}`, position: "sticky", top: 0 }}>
             <div style={{ display: "flex", alignItems: "center", width: 200, minWidth: 200 }}>
                 {_renderMenu()}
                 { _renderChannelName() }
