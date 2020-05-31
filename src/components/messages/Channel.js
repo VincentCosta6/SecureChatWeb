@@ -8,11 +8,11 @@ import { Card } from "@material-ui/core"
 
 const useStyles = makeStyles({
     container: ({ props, theme }) => ({
-        cursor: "pointer", 
+        cursor: "pointer",
         padding: 5,
         margin: 2,
         boxShadow: "none",
-        backgroundColor: props.isCurrent ? theme.palette.primary.main : "", 
+        backgroundColor: props.isCurrent ? theme.palette.primary.main : "",
         color: props.isCurrent ? theme.palette.primary.contrastText : theme.palette.text.primary,
         transition: "backgroundColor 0.4s ease-in-out",
         '&:hover': {
@@ -21,11 +21,11 @@ const useStyles = makeStyles({
         }
     }),
     title: ({ props, theme }) => ({
-        margin: "0 5px", 
+        margin: "0 5px",
     }),
     subtitle: ({ props, theme }) => ({
-        margin: "0 0px", 
-        marginLeft: 10, 
+        margin: "0 0px",
+        marginLeft: 10,
     })
 })
 
@@ -51,30 +51,29 @@ const Channel = props => {
     }, [props.data.messages.length])
 
     const clickCard = _ => {
-        if(props.setDrawer)
+        if (props.setDrawer)
             props.setDrawer(false)
         props.setActive(props.data.index)
     }
 
     const _renderChannelName = _ => {
-        if(Object.keys(props.data.privateKeys).length === 2) {
+        if (Object.keys(props.data.privateKeys).length === 2) {
             const otherUsernames = Object.keys(props.data.userMap).filter(userID => props.data.userMap[userID] !== props.myUsername)
-            return <h4 className = {styles.title}>{props.data.userMap[otherUsernames]}</h4>
+            return <h4 className={styles.title}>{props.data.userMap[otherUsernames]}</h4>
         }
-        else {
-            return <h4 className = {styles.title}>{props.data.Name}</h4>
-        }
+
+        return <h4 className={styles.title}>{props.data.Name}</h4>
     }
 
     return (
-        <Card className = {styles.container} onClick={clickCard}>
-            <div style = {{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                { _renderChannelName() }
+        <Card className={styles.container} onClick={clickCard}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                {_renderChannelName()}
 
-                { lastMessage && <p>{formatMessageTime(lastMessage.time)}</p> }
+                {lastMessage && <p>{formatMessageTime(lastMessage.time)}</p>}
             </div>
-            {lastMessage && <p className = {styles.subtitle}>{lastMessage.sender}: {lastMessage.message}</p>}
-            {!lastMessage && <p className = {styles.subtitle} style = {{ fontStyle: "italic" }}>No messages yet</p>}
+            {lastMessage && <p className={styles.subtitle}>{lastMessage.sender}: {lastMessage.message}</p>}
+            {!lastMessage && <p className={styles.subtitle} style={{ fontStyle: "italic" }}>No messages yet</p>}
         </Card>
     )
 }

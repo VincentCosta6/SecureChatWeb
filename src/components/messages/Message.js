@@ -1,5 +1,7 @@
 import React from "react"
 
+import { formatMessageTime } from "../../utility/conversions"
+
 const Message = props => {
     return (
         <>
@@ -42,23 +44,6 @@ export default React.memo(Message, (prevProps, nextProps) => {
            prevProps.showSender      !== nextProps.showSender      ||
            prevProps.isPersonal      !== nextProps.isPersonal
 })
-
-function formatMessageTime(time) {
-    const date = new Date(time)
-
-    let minute = date.getMinutes()
-
-    if(minute === 0) minute = "00"
-    else if (minute <= 9) minute = "0" + minute
-
-    const ampm = date.getHours() <= 11 ? "AM" : "PM"
-
-    let hour = ampm === "AM" ? date.getHours() : date.getHours() - 12
-
-    if(hour === 0) hour = "00"
-
-    return hour + ":" + minute + " " + ampm
-}
 
 function formatTime(date) {
     const currentDate = new Date()
