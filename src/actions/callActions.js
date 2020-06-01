@@ -18,7 +18,8 @@ export const CALL_DECLINED = "CALL_DECLINED"
 export const END_CALL = "END_CALL"
 export const LEAVE_CALL = "LEAVE_CALL"
 
-export const startCall = (constraints, activeChannel, user_id, username, type) => dispatch => {
+export const startCall = (constraints, activeChannel, user_id, username) => dispatch => {
+    const type = constraints.video ? "Video" : "Voice"
     navigator.mediaDevices.getUserMedia(constraints)
             .then(async stream => {
                 const peer = new Peer({ initiator: true, stream, trickle: false })
