@@ -234,17 +234,11 @@ async function decrypt(message, AESKey) {
     const keyMaterial = await getKeyMaterial(AESKey)
     const key = await deriveKeyWithSalt(keyMaterial, salt)
 
-    const unique = Math.random()
-
-    console.time("decrypt" + unique)
-
     const decrypted = await crypto.subtle.decrypt(
         { name: "AES-GCM", iv: iv },
         key,
         text
     )
-
-    console.timeEnd("decrypt" + unique)
 
     return decoder.decode(decrypted)
 }

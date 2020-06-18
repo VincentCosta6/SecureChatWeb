@@ -117,7 +117,7 @@ const CallView = props => {
     }
 
     const _renderCall = () => {
-        if (!call.incomingCall || !call.incomingCall) return <div></div>
+        if (!call.incomingCall) return <div></div>
 
         return (
             <>
@@ -218,7 +218,7 @@ const CallView = props => {
                 </MenuItem>
             </Menu>
             <Dialog
-                open={call.incomingCall && call.incomingCall ? true : false}
+                open={call.incomingCall ? true : false}
                 onClose={handleHangUp}
                 fullScreen
                 style={{ backgroundColor: "black" }}
