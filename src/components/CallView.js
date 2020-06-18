@@ -117,7 +117,7 @@ const CallView = props => {
     }
 
     const _renderCall = () => {
-        if (!call.incomingCall || !call.incomingCall) return <div></div>
+        if (!call.incomingCall) return <div></div>
 
         return (
             <>
