@@ -24,7 +24,7 @@ export const CLOSE_WEBSOCKET = "CLOSE_WEBSOCKET"
 export const ADD_MESSAGE_TO_QUEUE = "ADD_MESSAGE_TO_QUEUE"
 
 export const openWebsocket = token => dispatch => {
-    const client = new WebSocket(`wss://servicetechlink.com/ws`, ["asd", token])
+    const client = new WebSocket(`wss://securechat-go.herokuapp.com/ws`, ["asd", token])
 
     dispatch({
         type: OPENING_WEBSOCKET

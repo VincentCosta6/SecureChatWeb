@@ -69,7 +69,7 @@ const ChannelView = props => {
 
         setSending(true)
 
-        authReq(localStorage.getItem("token")).post("https://servicetechlink.com/message/create", JSON.stringify({
+        authReq(localStorage.getItem("token")).post("https://securechat-go.herokuapp.com/message/create", JSON.stringify({
             channelID: currentChannel._id,
             message: await encrypt(JSON.stringify({
                 content,

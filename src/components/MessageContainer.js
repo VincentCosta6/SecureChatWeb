@@ -90,7 +90,7 @@ export const MessageContainer = props => {
                     console.log("[Web Push] Subscription: ", subscription)
 
                     const res = await authReq(localStorage.getItem("token"))
-                        .post("https://servicetechlink.com/subscription", { ...(JSON.parse(JSON.stringify(subscription))), type: "webpush" })
+                        .post("https://securechat-go.herokuapp.com/subscription", { ...(JSON.parse(JSON.stringify(subscription))), type: "webpush" })
 
                     console.log(res)
                 }

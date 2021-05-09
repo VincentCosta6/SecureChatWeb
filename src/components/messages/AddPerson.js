@@ -73,7 +73,7 @@ const AddPerson = props => {
             userMap
         }
 
-        authReq(user.token).post("https://servicetechlink.com/channel/add/user", JSON.stringify(addUserForm))
+        authReq(user.token).post("https://securechat-go.herokuapp.com/channel/add/user", JSON.stringify(addUserForm))
             .then(_data => {
                 setRequestLoading(false)
                 props.handleClose()
@@ -98,7 +98,7 @@ const AddPerson = props => {
     useEffect(_ => {
         if(searchUser !== "") {
             setSearchLoading(true)
-            axios.get("https://servicetechlink.com/like/users/" + searchUser)
+            axios.get("https://securechat-go.herokuapp.com/like/users/" + searchUser)
                 .then(data => {
                     const set = new Set()
 

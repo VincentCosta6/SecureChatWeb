@@ -100,7 +100,7 @@ export default function usePushNotifications() {
     const onClickSendSubscriptionToPushServer = () => {
         setLoading(true);
         setError(false);
-        authReq(localStorage.getItem("token")).post("https://servicetechlink.com/subscription", {
+        authReq(localStorage.getItem("token")).post("https://securechat-go.herokuapp.com/subscription", {
                 body: JSON.stringify({ subscription: userSubscription, user_id: localStorage.getItem("user") })
             })
             .then(function (response) {

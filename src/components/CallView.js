@@ -101,7 +101,7 @@ const CallView = props => {
         setAnchorEl(null)
         const channelID = channels.channels[channels.activeChannel]._id
 
-        const res = await authReq(localStorage.getItem("token")).delete("https://servicetechlink.com/channel/leave", { data: { channelID } })
+        const res = await authReq(localStorage.getItem("token")).delete("https://securechat-go.herokuapp.com/channel/leave", { data: { channelID } })
     }
 
     const [anchorEl, setAnchorEl] = useState(null)

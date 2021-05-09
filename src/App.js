@@ -34,7 +34,7 @@ function App(props) {
         let res;
 
         try {
-            res = await authReq(localStorage.getItem("token")).get("https://servicetechlink.com/get/session")
+            res = await authReq(localStorage.getItem("token")).get("https://securechat-go.herokuapp.com/get/session")
 
             setCheckingExist(false)
             history.push("/messages")
