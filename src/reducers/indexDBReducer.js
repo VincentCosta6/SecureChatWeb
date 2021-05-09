@@ -6,7 +6,7 @@ const initialState = {
   db: null
 }
 
-export default function (state = initialState, action) {
+export default function indexDBReducer(state = initialState, action) {
   switch (action.type) {
     case INDEXDB_ATTEMPT:
       return { ...state, opening: true, failed: false }

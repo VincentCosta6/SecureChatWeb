@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-import { Redirect, withRouter } from 'react-router'
+import { withRouter } from 'react-router'
 
 import { withTheme, useTheme, TextField, Button, LinearProgress, CircularProgress } from '@material-ui/core'
 
@@ -23,8 +23,6 @@ const Login = props => {
 
   const [percentage, setPercentage] = useState(0)
 
-  const [redirect, setRedirect] = useState('')
-
   useEffect(_ => {
     if (props.user && props.user.token && props.user.token.length > 10) {
       props.history.push('/messages')
@@ -34,7 +32,7 @@ const Login = props => {
       clearInterval(interval)
       interval = null
     }
-  }, [])
+  }, [props.history, props.user])
 
   const handleUsernameChange = event => { setUsername(event.target.value.replace(' ', '')) }
   const handlePasswordChange = event => { setPassword(event.target.value.replace(' ', '')) }
@@ -81,10 +79,6 @@ const Login = props => {
         props.setUser(res.data.user, res.data.token, password)
         props.history.push('/messages')
       })
-  }
-
-  const handleRedirect = _ => {
-    setRedirect('/register')
   }
 
   const _renderProgress = _ => {

@@ -8,7 +8,7 @@ const initialState = {
   DECRYPTING: false
 }
 
-export default function (state = initialState, action) {
+export default function channelReducer(state = initialState, action) {
   switch (action.type) {
     case DECRYPTING:
       return { ...state, DECRYPTING: true }

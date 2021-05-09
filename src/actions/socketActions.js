@@ -1,7 +1,5 @@
 import store from '../store'
 
-import { authReq } from '../axios-auth'
-
 import { WEBSOCKET_STATUS } from './connectionActions'
 
 import {

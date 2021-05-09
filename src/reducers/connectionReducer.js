@@ -5,7 +5,7 @@ const initialState = {
   websocketConnected: false
 }
 
-export default function (state = initialState, action) {
+export default function connectionReducer(state = initialState, action) {
   switch (action.type) {
     case SERVER_STATUS:
       return { ...state, serverConnected: action.status }

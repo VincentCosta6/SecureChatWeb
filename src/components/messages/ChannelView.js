@@ -34,7 +34,6 @@ const ChannelView = props => {
   const [sending, setSending] = useState(false)
   const [loading] = useState(false)
 
-  const [optionsMenu, setOptionsMenu] = useState(false)
   const [cancelNextPress, setCancelNextPress] = useState(false)
 
   const buttonRef = useRef(null)
@@ -48,7 +47,7 @@ const ChannelView = props => {
     const typers = Object.keys(currentChannel.typers).map(key => currentChannel.typers[key]).filter(typer => typer.WhoTypingID !== props.user._id)
 
     setTypers(typers)
-  }, [currentChannel.typers])
+  }, [currentChannel.typers, props.user._id])
 
   useEffect(_ => {
     lastSend = null
@@ -194,7 +193,6 @@ const ChannelView = props => {
 
   const handleLongPress = _ => {
     setCancelNextPress(true)
-    setOptionsMenu(true)
 
     setAnchorEl(buttonRef.current)
   }
@@ -206,7 +204,6 @@ const ChannelView = props => {
     }
 
     sendMessage(formMessage, 'MESSAGE')
-    setOptionsMenu(false)
     inputRef.current.focus()
   }
 
@@ -245,7 +242,6 @@ const ChannelView = props => {
             color='primary' variant='contained' disabled={sending}
             {...sendButtonLongPress}
             onClick={handleRegularPress}
-            onBlur={_ => setOptionsMenu(false)}
             ref={buttonRef}
           >
                         Send

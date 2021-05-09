@@ -1,9 +1,8 @@
 import store from '../store'
 
-import { dbPromise, dbQueryPromise } from '../utility/indexDBWrappers'
+import { dbQueryPromise } from '../utility/indexDBWrappers'
 
 import { authReq } from '../axios-auth'
-import { AES } from 'crypto-js'
 
 export const LOAD_CHANNELS = 'LOAD_CHANNELS'
 export const DECRYPTING = 'DECRYPTING'

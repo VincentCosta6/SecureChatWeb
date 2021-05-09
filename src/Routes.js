@@ -1,10 +1,10 @@
 import React from 'react'
 
-import { Router, Route, Switch } from 'react-router'
-import { MuiThemeProvider, useTheme, CircularProgress } from '@material-ui/core'
+import { Route, Switch } from 'react-router'
+import { MuiThemeProvider } from '@material-ui/core'
 
 import Header from './components/Header'
-import Login from './components/Login'
+// import Login from './components/Login'
 import Register from './components/Register'
 import MessageContainer from './components/MessageContainer'
 import Settings from './components/Settings'

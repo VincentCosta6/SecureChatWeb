@@ -2,7 +2,6 @@ import store from '../store'
 import { loadUser } from './userActions'
 import { changeTheme } from './themeActions'
 import { dbQueryPromise } from '../utility/indexDBWrappers'
-import { GiTorpedo } from 'react-icons/gi'
 
 export const OPEN_INDEXDB = 'OPEN_INDEXDB'
 
@@ -13,14 +12,12 @@ export const INDEXDB_ERROR = 'INDEXDB_ERROR'
 
 export const UPGRADE_DB = 'UPGRADE_DB'
 
-export const openIndexDB = data => dispatch => {
+export const openIndexDB = () => dispatch => {
   dispatch({
     type: INDEXDB_ATTEMPT
   })
 
   const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB
-  const IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || { READ_WRITE: 'readwrite' }
-  const IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
 
   if (!indexedDB) {
     dispatch({
@@ -34,7 +31,7 @@ export const openIndexDB = data => dispatch => {
 
   let firstReq = true
 
-  request.onerror = event => {
+  request.onerror = () => {
     dispatch({
       type: firstReq ? INDEXDB_FAILED : INDEXDB_ERROR
     })
@@ -82,19 +79,19 @@ export const openIndexDB = data => dispatch => {
     }
 
     if (!set.has('keystore')) {
-      const keystore = db.createObjectStore('keystore', { keyPath: 'username' })
+      db.createObjectStore('keystore', { keyPath: 'username' })
     }
 
     if (!set.has('channel_keystore')) {
-      const channel_keystore = db.createObjectStore('channel_keystore', { keyPath: 'channel_id' })
+      db.createObjectStore('channel_keystore', { keyPath: 'channel_id' })
     }
 
     if (!set.has('user_data')) {
-      const user_data = db.createObjectStore('user_data', { keyPath: '_id' })
+      db.createObjectStore('user_data', { keyPath: '_id' })
     }
 
     if (!set.has('themes')) {
-      const themes = db.createObjectStore('themes', { keyPath: 'username' })
+      db.createObjectStore('themes', { keyPath: 'username' })
     }
 
     dispatch({

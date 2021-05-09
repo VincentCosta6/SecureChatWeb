@@ -7,7 +7,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  Divider,
   TextField,
   DialogActions,
   Button,
@@ -19,7 +18,7 @@ import {
 import axios, { authReq } from '../../axios-auth'
 import { buf2hex, str2ab } from '../../utility/conversions'
 
-import { FiPlus, FiMinusCircle } from 'react-icons/fi'
+import { FiMinusCircle } from 'react-icons/fi'
 
 import { Autocomplete } from '@material-ui/lab/'
 
@@ -27,8 +26,6 @@ const pemHeader = '-----BEGIN PUBLIC KEY-----'
 const pemFooter = '-----END PUBLIC KEY-----'
 
 const AddPerson = props => {
-  const theme = useTheme()
-
   const { user, channels } = useSelector(state => ({
     user: state.user,
     channels: state.channels
@@ -110,7 +107,7 @@ const AddPerson = props => {
         })
         .catch(_err => { })
     }
-  }, [searchUser])
+  }, [searchUser, selectedUsers, user.username])
 
   return (
     <Dialog
