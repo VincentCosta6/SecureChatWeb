@@ -1,36 +1,35 @@
-import store from "../store"
+import store from '../store'
 
-import { dbQueryPromise } from "../utility/indexDBWrappers"
+import { dbQueryPromise } from '../utility/indexDBWrappers'
 
-export const GET_THEMES = "GET_THEMES"
-export const CHANGE_THEME = "CHANGE_THEME"
-
+export const GET_THEMES = 'GET_THEMES'
+export const CHANGE_THEME = 'CHANGE_THEME'
 
 export const getThemes = _ => dispatch => {
-    /*storage.get("theme", (_err, data) => {
+  /* storage.get("theme", (_err, data) => {
         if(Object.entries(data).length === 0 && data.constructor === Object)
             dispatch({
                 type: GET_THEMES,
                 theme: createMuiTheme()
             })
-        else 
+        else
             dispatch({
                 type: GET_THEMES,
                 theme: createMuiTheme(data)
             })
-    })*/
+    }) */
 }
 
 export const changeTheme = theme => dispatch => {
-    const saveState = async _ => {
-        const themeDataStore = store.getState().indexdb.db.transaction(["themes"], "readwrite").objectStore("themes")
-        const request = themeDataStore.put({ username: localStorage.getItem("user"), theme })
-    }
-    
-    saveState()
+  const saveState = async _ => {
+    const themeDataStore = store.getState().indexdb.db.transaction(['themes'], 'readwrite').objectStore('themes')
+    const request = themeDataStore.put({ username: localStorage.getItem('user'), theme })
+  }
 
-    dispatch({
-        type: CHANGE_THEME,
-        theme
-    })
+  saveState()
+
+  dispatch({
+    type: CHANGE_THEME,
+    theme
+  })
 }

@@ -11,7 +11,7 @@
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read https://bit.ly/CRA-PWA
 
-/*const isLocalhost = Boolean(
+/* const isLocalhost = Boolean(
     window.location.hostname === 'localhost' ||
     // [::1] is the IPv6 localhost address.
     window.location.hostname === '[::1]' ||
@@ -133,141 +133,141 @@ function unregister() {
             registration.unregister();
         });
     }
-}*/
+} */
 
-async function getIndexedDB() {
-    return new Promise(function(resolve, reject) {
-        const request = indexedDB.open("securechat", 4)
+async function getIndexedDB () {
+  return new Promise(function (resolve, reject) {
+    const request = indexedDB.open('securechat', 4)
 
-        request.onsuccess = event => {
-            resolve(event.target.result)
-        }
+    request.onsuccess = event => {
+      resolve(event.target.result)
+    }
 
-        request.onupgradeneeded = event => {
-            const db = event.target.result
+    request.onupgradeneeded = event => {
+      const db = event.target.result
 
-            const channels = db.createObjectStore("channels", { keyPath: "channel_id" })
-            channels.createIndex("channel_name", "channel_name", { unique: false })
+      const channels = db.createObjectStore('channels', { keyPath: 'channel_id' })
+      channels.createIndex('channel_name', 'channel_name', { unique: false })
 
-            const keystore = db.createObjectStore("keystore", { keyPath: "username" })
+      const keystore = db.createObjectStore('keystore', { keyPath: 'username' })
 
-            const channel_keystore = db.createObjectStore("channel_keystore", { keyPath: "channel_id" })
+      const channel_keystore = db.createObjectStore('channel_keystore', { keyPath: 'channel_id' })
 
-            const user_data = db.createObjectStore("user_data", { keyPath: "_id" })
-        }
+      const user_data = db.createObjectStore('user_data', { keyPath: '_id' })
+    }
 
-        request.onerror = event => {
-            reject()
-        }
-    })
+    request.onerror = event => {
+      reject()
+    }
+  })
 }
 
 const dbQueryPromise = (indexedDBObj) => {
-    return new Promise(function(resolve, reject) {
-        indexedDBObj.onerror = reject
-        indexedDBObj.onsuccess = resolve
-    })
+  return new Promise(function (resolve, reject) {
+    indexedDBObj.onerror = reject
+    indexedDBObj.onsuccess = resolve
+  })
 }
 
-async function generateMessage(e) {
-    const data = await e.data.json()
+async function generateMessage (e) {
+  const data = await e.data.json()
 
-    let message = ""
+  let message = ''
 
-    if (data) {
-        const db = await getIndexedDB()
+  if (data) {
+    const db = await getIndexedDB()
 
-        if(data.ChannelID && data.Encrypted) {
-            const channelKeyStore = db.transaction(["channel_keystore"]).objectStore("channel_keystore")
-            const requestChannel = channelKeyStore.get(data.ChannelID)
+    if (data.ChannelID && data.Encrypted) {
+      const channelKeyStore = db.transaction(['channel_keystore']).objectStore('channel_keystore')
+      const requestChannel = channelKeyStore.get(data.ChannelID)
 
-            const channel_key = (await dbQueryPromise(requestChannel)).target.result.key
+      const channel_key = (await dbQueryPromise(requestChannel)).target.result.key
 
-            message = { ...data, Encrypted: await decrypt(data.Encrypted, channel_key) }
+      message = { ...data, Encrypted: await decrypt(data.Encrypted, channel_key) }
 
-            message = message.Encrypted
+      message = message.Encrypted
 
-            message = JSON.parse(message).content
-        }
-    } else {
-        return
+      message = JSON.parse(message).content
     }
+  } else {
+    return
+  }
 
-    var options = {
-        body: message,
+  var options = {
+    body: message,
 
-        vibrate: [100, 50, 100],
-        data: {
-            dateOfArrival: Date.now(),
-            primaryKey: 1
-        }
-    };
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1
+    }
+  }
 
-    await self.registration.showNotification('SecureChat', options)
+  await self.registration.showNotification('SecureChat', options)
 }
 
 self.addEventListener('push', function (e) {
-    console.log(e)
+  console.log(e)
 
-    e.waitUntil(generateMessage(e))
-});
+  e.waitUntil(generateMessage(e))
+})
 
-function _base64ToArrayBuffer(base64) {
-    var binary_string = atob(base64);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++) {
-        bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes.buffer;
+function _base64ToArrayBuffer (base64) {
+  var binary_string = atob(base64)
+  var len = binary_string.length
+  var bytes = new Uint8Array(len)
+  for (var i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i)
+  }
+  return bytes.buffer
 }
 
-async function decrypt(message, AESKey) {
-    const decoder = new TextDecoder()
+async function decrypt (message, AESKey) {
+  const decoder = new TextDecoder()
 
-    const bData = _base64ToArrayBuffer(message)
-    // convert data to buffers
-    const iv = bData.slice(0, 16)
-    const salt = bData.slice(16, 80)
-    const text = bData.slice(80)
+  const bData = _base64ToArrayBuffer(message)
+  // convert data to buffers
+  const iv = bData.slice(0, 16)
+  const salt = bData.slice(16, 80)
+  const text = bData.slice(80)
 
-    const keyMaterial = await getKeyMaterial(AESKey)
-    const key = await deriveKeyWithSalt(keyMaterial, salt)
+  const keyMaterial = await getKeyMaterial(AESKey)
+  const key = await deriveKeyWithSalt(keyMaterial, salt)
 
-    const decrypted = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: iv },
-        key,
-        text
-    )
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: iv },
+    key,
+    text
+  )
 
-    return decoder.decode(decrypted)
+  return decoder.decode(decrypted)
 }
 
-async function getKeyMaterial(AESKey) {
-    let enc = new TextEncoder()
+async function getKeyMaterial (AESKey) {
+  const enc = new TextEncoder()
 
-    const keyString = await crypto.subtle.exportKey("raw", AESKey)
+  const keyString = await crypto.subtle.exportKey('raw', AESKey)
 
-    return crypto.subtle.importKey(
-        "raw",
-        enc.encode(keyString),
-        { name: "PBKDF2" },
-        false,
-        ["deriveBits", "deriveKey"]
-    )
+  return crypto.subtle.importKey(
+    'raw',
+    enc.encode(keyString),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits', 'deriveKey']
+  )
 }
 
-function deriveKeyWithSalt(keyMaterial, salt) {
-    return crypto.subtle.deriveKey(
-        {
-            "name": "PBKDF2",
-            salt: salt,
-            "iterations": 2000,
-            "hash": "SHA-512"
-        },
-        keyMaterial,
-        { "name": "AES-GCM", "length": 256 },
-        true,
-        ["encrypt", "decrypt"]
-    )
+function deriveKeyWithSalt (keyMaterial, salt) {
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: 2000,
+      hash: 'SHA-512'
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    true,
+    ['encrypt', 'decrypt']
+  )
 }

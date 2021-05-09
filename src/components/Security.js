@@ -1,25 +1,24 @@
-import React, { useState } from "react"
+import React, { useState } from 'react'
 
-import { connect } from "react-redux"
-import { withTheme, useTheme } from "@material-ui/core"
+import { connect } from 'react-redux'
+import { withTheme, useTheme, Divider, Button, CircularProgress } from '@material-ui/core'
 
-import { FaCheck, FaTimes } from "react-icons/fa"
-import { Divider, Button, CircularProgress } from "@material-ui/core"
+import { FaCheck, FaTimes } from 'react-icons/fa'
 
 const Security = props => {
-    const theme = useTheme()
-    const contrastText = theme.palette.getContrastText(theme.palette.background.default)
+  const theme = useTheme()
+  const contrastText = theme.palette.getContrastText(theme.palette.background.default)
 
-    const [isSuccess, setSuccess] = useState(false)
-    const [exporting, setExporting] = useState(false)
-    const [err, setError] = useState("")
+  const [isSuccess, setSuccess] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const [err, setError] = useState('')
 
-    const handleExport = _ => {
-        setSuccess(false)
-        setExporting(true)
-        setError("")
+  const handleExport = _ => {
+    setSuccess(false)
+    setExporting(true)
+    setError('')
 
-        /*storage.get("protectedKeys", (err, keys) => {
+    /* storage.get("protectedKeys", (err, keys) => {
             if(err) {
                 setSuccess(false)
                 setExporting(false)
@@ -62,41 +61,41 @@ const Security = props => {
                     setSuccess(true)
                 })
             })
-        })*/
-    }
+        }) */
+  }
 
-    return (
-        <div style = {{ flex: "1 1 auto", display: "flex", flexDirection: "column", overflowY: "auto" }}>
-            <div style = {divStyle}>
-                <h2 style = {titleStyle(contrastText)}>Private Key</h2>
-                <Button variant = "contained" color = "primary" onClick = {handleExport}>
-                    Export 
-                    { exporting && <CircularProgress size = {17} style = {{ color: theme.palette.getContrastText(theme.palette.primary.main) }} /> }
-                    { isSuccess && <FaCheck color = "green" size = {17} /> }
-                    { err && <FaTimes color = "red" size = {17} /> }
-                </Button>
+  return (
+    <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+      <div style={divStyle}>
+        <h2 style={titleStyle(contrastText)}>Private Key</h2>
+        <Button variant='contained' color='primary' onClick={handleExport}>
+                    Export
+          {exporting && <CircularProgress size={17} style={{ color: theme.palette.getContrastText(theme.palette.primary.main) }} />}
+          {isSuccess && <FaCheck color='green' size={17} />}
+          {err && <FaTimes color='red' size={17} />}
+        </Button>
 
-                { err && <p style = {{ color: "red", fontSize: 21 }}>{err}</p> }
-            </div>
+        {err && <p style={{ color: 'red', fontSize: 21 }}>{err}</p>}
+      </div>
 
-            <Divider />
-        </div>
-    )
+      <Divider />
+    </div>
+  )
 }
 
 const mapStateToProps = state => {
-    return {
-        user: state.user
-    }
+  return {
+    user: state.user
+  }
 }
 
 export default connect(mapStateToProps, {})(withTheme(Security))
 
 const divStyle = {
-    margin: "15px 0", 
-    padding: 15
+  margin: '15px 0',
+  padding: 15
 }
 
 const titleStyle = (contrast) => ({
-    color: contrast
+  color: contrast
 })

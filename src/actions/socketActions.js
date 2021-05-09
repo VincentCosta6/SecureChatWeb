@@ -1,102 +1,100 @@
-import store from "../store"
+import store from '../store'
 
-import { authReq } from "../axios-auth"
+import { authReq } from '../axios-auth'
 
-import { WEBSOCKET_STATUS } from "./connectionActions"
+import { WEBSOCKET_STATUS } from './connectionActions'
 
-import { 
-    WebsocketOpen, 
-    WebsocketMessage, 
-    WebsocketError, 
-    WebsocketClose 
-} from "../websocket/ws-redux-connect"
+import {
+  WebsocketOpen,
+  WebsocketMessage,
+  WebsocketError,
+  WebsocketClose
+} from '../websocket/ws-redux-connect'
 
-import { clearData } from "../actions/channelActions"
+import { clearData } from '../actions/channelActions'
 
-export const OPENING_WEBSOCKET = "OPENING_WEBSOCKET"
-export const WEBSOCKET_FAILED = "WEBSOCKET_FAILED"
-export const WEBSOCKET_SUCCESS = "WEBSOCKET_SUCCESS"
+export const OPENING_WEBSOCKET = 'OPENING_WEBSOCKET'
+export const WEBSOCKET_FAILED = 'WEBSOCKET_FAILED'
+export const WEBSOCKET_SUCCESS = 'WEBSOCKET_SUCCESS'
 
-export const OPEN_WEBSOCKET = "OPEN_WEBSOCKET"
-export const SEND_DATA = "SEND_DATA"
-export const CLOSE_WEBSOCKET = "CLOSE_WEBSOCKET"
+export const OPEN_WEBSOCKET = 'OPEN_WEBSOCKET'
+export const SEND_DATA = 'SEND_DATA'
+export const CLOSE_WEBSOCKET = 'CLOSE_WEBSOCKET'
 
-export const ADD_MESSAGE_TO_QUEUE = "ADD_MESSAGE_TO_QUEUE"
+export const ADD_MESSAGE_TO_QUEUE = 'ADD_MESSAGE_TO_QUEUE'
 
 export const openWebsocket = token => dispatch => {
-    const client = new WebSocket(`wss://securechat-go.herokuapp.com/ws`, ["asd", token])
+  const client = new WebSocket('wss://securechat-go.herokuapp.com/ws', ['asd', token])
+
+  dispatch({
+    type: OPENING_WEBSOCKET
+  })
+
+  client.onopen = _ => {
+    WebsocketOpen()
 
     dispatch({
-        type: OPENING_WEBSOCKET
+      type: WEBSOCKET_STATUS,
+      status: true
     })
+    dispatch({
+      type: WEBSOCKET_SUCCESS
+    })
+  }
 
-    client.onopen = _ => {
-        WebsocketOpen()
+  client.onmessage = message => {
+    const parsed = JSON.parse(message.data)
+    WebsocketMessage(parsed)
+  }
 
-        dispatch({
-            type: WEBSOCKET_STATUS,
-            status: true
-        })
-        dispatch({
-            type: WEBSOCKET_SUCCESS,
-        })
-        
-
-    }
-
-    client.onmessage = message => {
-        const parsed = JSON.parse(message.data)
-        WebsocketMessage(parsed)
-    }
-
-    client.onerror = err => {
-        WebsocketError(err)
-
-        dispatch({
-            type: WEBSOCKET_FAILED
-        })
-
-        store.dispatch(clearData())
-    }
-
-    client.onclose = ev => {
-        WebsocketClose()
-        
-        dispatch({
-            type: CLOSE_WEBSOCKET
-        })
-        dispatch({
-            type: WEBSOCKET_STATUS,
-            status: false
-        })
-
-        store.dispatch(clearData())
-    }
+  client.onerror = err => {
+    WebsocketError(err)
 
     dispatch({
-        type: OPEN_WEBSOCKET,
-        websocket: client
+      type: WEBSOCKET_FAILED
     })
+
+    store.dispatch(clearData())
+  }
+
+  client.onclose = ev => {
+    WebsocketClose()
+
+    dispatch({
+      type: CLOSE_WEBSOCKET
+    })
+    dispatch({
+      type: WEBSOCKET_STATUS,
+      status: false
+    })
+
+    store.dispatch(clearData())
+  }
+
+  dispatch({
+    type: OPEN_WEBSOCKET,
+    websocket: client
+  })
 }
 
 export const addMessageToQueue = (message) => dispatch => {
-    dispatch({
-        type: ADD_MESSAGE_TO_QUEUE,
-        message
-    })
+  dispatch({
+    type: ADD_MESSAGE_TO_QUEUE,
+    message
+  })
 }
 
 export const sendData = data => dispatch => {
-    console.log("Sending data", data)
-    
-    dispatch({
-        type: SEND_DATA,
-        data
-    })
+  console.log('Sending data', data)
+
+  dispatch({
+    type: SEND_DATA,
+    data
+  })
 }
 
 export const closeWebsocket = _ => dispatch => {
-    dispatch({
-        type: CLOSE_WEBSOCKET
-    })
+  dispatch({
+    type: CLOSE_WEBSOCKET
+  })
 }
