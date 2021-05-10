@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import { useSelector } from 'react-redux'
 import {
-  withTheme, useTheme,
+  withTheme,
   Dialog,
   DialogTitle,
   DialogContent,
