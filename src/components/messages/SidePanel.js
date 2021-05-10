@@ -16,7 +16,7 @@ const useStyles = makeStyles({
     resize: 'horizontal',
     minWidth: 200,
     overflowY: 'auto',
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
   }),
   loadingContainer: {
     display: 'flex',
@@ -71,10 +71,9 @@ const SidePanel = props => {
   }
 
   return (
-    <div className={styles.container} style={{ maxWidth: props.width && props.width <= 750 ? '' : '400px' }}>
-      {_renderChannels()}
-
+    <div className={styles.container} style={{ maxWidth: props.width && props.width <= 750 ? '' : '400px', display: 'flex', flexDirection: 'column' }}>
       <CreateChannel width={props.width} />
+      {_renderChannels()}
     </div>
   )
 }

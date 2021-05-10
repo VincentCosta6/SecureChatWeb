@@ -178,7 +178,7 @@ const CallView = props => {
             onClick={handleOptionsClick}
             aria-controls='simple-menu'
             size={30}
-            color={theme.palette.primary.main}
+            color={theme.palette.primary.contrastText}
             style={{ cursor: 'pointer' }}
           />
       }

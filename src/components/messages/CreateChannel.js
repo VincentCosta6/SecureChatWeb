@@ -141,7 +141,7 @@ const CreateChannel = props => {
     }
   }, [searchUser])
 
-  const percentage = props.width && props.width <= 750 ? '90%' : '100%'
+  const percentage = /* props.width && props.width <= 750 ? '90%' : */ '100%'
 
   return (
     <>

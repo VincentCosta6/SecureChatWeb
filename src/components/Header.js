@@ -81,7 +81,7 @@ const Header = props => {
       if (width <= 750 && isActiveMessages) {
         return (
           <>
-            <h3 style={{ marginLeft: 15 }}>Channels</h3>
+            <h3 style={{ marginLeft: 15, marginBottom: 10 }}>Channels</h3>
             <SidePanel width={width} setDrawer={setDrawer} />
 
             <Divider />
