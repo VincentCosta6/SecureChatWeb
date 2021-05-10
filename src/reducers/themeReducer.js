@@ -10,7 +10,7 @@ const initialState = {
 
 let timeout = null
 
-export default function themeReducer(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
     case GET_THEMES:
       return { ...state, currentTheme: action.theme }

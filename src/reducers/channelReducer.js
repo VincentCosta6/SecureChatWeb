@@ -1,4 +1,4 @@
-import { LOAD_CHANNELS, DECRYPTING, ADD_CHANNEL, DELETE_CHANNEL, SET_ACTIVE, ADD_MESSAGE, SET_LOAD_CHANNELS, ADD_TYPER, REMOVE_TYPER, CLEAR_DATA } from '../actions/channelActions'
+import { LOAD_CHANNELS, DECRYPTING, ADD_CHANNEL, DELETE_CHANNEL, SET_ACTIVE, ADD_MESSAGE, SET_LOAD_CHANNELS, ADD_TYPER, REMOVE_TYPER, CLEAR_DATA, decrypt } from '../actions/channelActions'
 
 const initialState = {
   channels: [],
@@ -8,7 +8,7 @@ const initialState = {
   DECRYPTING: false
 }
 
-export default function channelReducer(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
     case DECRYPTING:
       return { ...state, DECRYPTING: true }

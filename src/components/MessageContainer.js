@@ -41,7 +41,7 @@ const useStyles = makeStyles({
 
 const public_key = 'BO47up6T_b3tELDFjeBPXNpUZZ45B5wcHgDKnsjI3ykGGW6q2b8qKFDfL4v8XBtDUlqOEKl2pfEcYg8nE9NIUqE'
 
-export const MessageContainer = () => {
+export const MessageContainer = props => {
   const theme = useTheme()
   const styles = useStyles({ theme })
   const dispatch = useDispatch()
@@ -99,7 +99,7 @@ export const MessageContainer = () => {
           console.error('[Service Worker] Error occured while asking for permissions', err)
         })
     }
-  }, [dispatch])
+  }, [])
 
   useInterval(_ => {
     if (retry === 1) {
@@ -112,19 +112,19 @@ export const MessageContainer = () => {
 
   useEffect(_ => {
     dispatch(openIndexDB())
-  }, [dispatch])
+  }, [])
 
   useEffect(_ => {
     if (user.token && user.token.length > 10 && !websocket.websocket && indexdb.db) {
       dispatch(openWebsocket(user.token))
     }
-  }, [connection.websocketConnected, user, user.token, indexdb.db, dispatch, websocket.websocket])
+  }, [connection.websocketConnected, user, user.token, indexdb.db])
 
   useEffect(_ => {
     if (connection.websocketConnected && channels.channels.length === 0) {
       dispatch(loadChannels(user))
     }
-  }, [connection.serverConnected, connection.websocketConnected, channels.channels.length, dispatch, user])
+  }, [connection.serverConnected, connection.websocketConnected])
 
   const updateWindowWidth = _ => {
     setWidth(window.innerWidth)

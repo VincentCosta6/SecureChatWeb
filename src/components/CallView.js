@@ -46,7 +46,7 @@ const CallView = props => {
     if (channels.activeChannel !== -1) {
       setPersonal(Object.keys(channels.channels[channels.activeChannel].privateKeys).length === 2)
     }
-  }, [channels.activeChannel, channels.channels])
+  }, [channels.activeChannel])
 
   const handleVoiceCall = _ => {
     handleCall({
@@ -99,7 +99,7 @@ const CallView = props => {
     setAnchorEl(null)
     const channelID = channels.channels[channels.activeChannel]._id
 
-    await authReq(localStorage.getItem('token')).delete('https://securechat-go.herokuapp.com/channel/leave', { data: { channelID } })
+    const res = await authReq(localStorage.getItem('token')).delete('https://securechat-go.herokuapp.com/channel/leave', { data: { channelID } })
   }
 
   const [anchorEl, setAnchorEl] = useState(null)

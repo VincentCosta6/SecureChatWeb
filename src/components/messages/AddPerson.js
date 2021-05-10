@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react'
 
 import { useSelector } from 'react-redux'
 import {
-  withTheme,
+  withTheme, useTheme,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
+  Divider,
   TextField,
   DialogActions,
   Button,
@@ -18,7 +19,7 @@ import {
 import axios, { authReq } from '../../axios-auth'
 import { buf2hex, str2ab } from '../../utility/conversions'
 
-import { FiMinusCircle } from 'react-icons/fi'
+import { FiPlus, FiMinusCircle } from 'react-icons/fi'
 
 import { Autocomplete } from '@material-ui/lab/'
 
@@ -26,6 +27,8 @@ const pemHeader = '-----BEGIN PUBLIC KEY-----'
 const pemFooter = '-----END PUBLIC KEY-----'
 
 const AddPerson = props => {
+  const theme = useTheme()
+
   const { user, channels } = useSelector(state => ({
     user: state.user,
     channels: state.channels
@@ -107,7 +110,7 @@ const AddPerson = props => {
         })
         .catch(_err => { })
     }
-  }, [searchUser, selectedUsers, user.username])
+  }, [searchUser])
 
   return (
     <Dialog

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 
-import { useSelector } from 'react-redux'
+import { useSelector, connect } from 'react-redux'
 import {
   withTheme, useTheme,
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
+  Divider,
   TextField,
   DialogActions,
   Button,
@@ -137,7 +139,7 @@ const CreateChannel = props => {
         })
         .catch(_err => { })
     }
-  }, [searchUser, selectedUsers, user.username])
+  }, [searchUser])
 
   const percentage = props.width && props.width <= 750 ? '90%' : '100%'
 

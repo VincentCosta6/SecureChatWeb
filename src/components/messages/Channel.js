@@ -18,10 +18,10 @@ const useStyles = makeStyles({
       color: theme.palette.primary.contrastText
     }
   }),
-  title: () => ({
+  title: ({ props, theme }) => ({
     margin: '0 5px'
   }),
-  subtitle: () => ({
+  subtitle: ({ props, theme }) => ({
     margin: '0 0px',
     marginLeft: 10
   })
@@ -46,7 +46,7 @@ const Channel = props => {
         time: lastMessage.Timestamp
       })
     }
-  }, [props.data.messages.length, props.data.messages, props.myUsername])
+  }, [props.data.messages.length])
 
   const clickCard = _ => {
     if (props.setDrawer) { props.setDrawer(false) }

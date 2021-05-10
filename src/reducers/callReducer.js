@@ -1,4 +1,4 @@
-import { START_CALL, CALL_INCOMING, DECLINE_CALL, ACCEPT_CALL, CALL_ACCEPTED, END_CALL, endCall } from '../actions/callActions'
+import { START_CALL, CALL_INCOMING, DECLINE_CALL, ACCEPT_CALL, CALL_ACCEPTED, CALL_DECLINED, END_CALL, endCall } from '../actions/callActions'
 
 import store from '../store'
 
@@ -14,7 +14,7 @@ const initialState = {
   peer: new Peer({ initiator: false, trickle: false })
 }
 
-export default function callReducer(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
     case START_CALL: {
       return { ...state, peer: action.peer, stream: action.stream, currentCall: action.data }

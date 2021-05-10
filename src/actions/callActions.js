@@ -28,7 +28,7 @@ export const startCall = (constraints, activeChannel, user_id, username) => disp
 
       users = users.filter(user => store.getState().user._id !== user)
 
-      await authReq(localStorage.getItem('token'))
+      const res = await authReq(localStorage.getItem('token'))
         .post('https://securechat-go.herokuapp.com/call', JSON.stringify({ ChannelID: currentChannel._id, Type: type }))
 
       dispatch({

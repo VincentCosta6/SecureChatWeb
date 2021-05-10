@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 
 import { Provider } from 'react-redux'
-import { Router } from 'react-router'
+import { Router, Route, Switch } from 'react-router'
 
 import { authReq } from './axios-auth'
 
-import { CircularProgress } from '@material-ui/core'
+import { MuiThemeProvider, useTheme, CircularProgress } from '@material-ui/core'
 
 import store from './store'
 

@@ -7,7 +7,7 @@ const initialState = {
   queue: []
 }
 
-export default function socketReducer(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
     case OPENING_WEBSOCKET:
       return { ...state, opening: true, failed: false }

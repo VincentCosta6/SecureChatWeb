@@ -15,6 +15,9 @@ import { spkiToPEM } from '../utility/pemConversion'
 
 import axios from 'axios'
 
+import forge from 'node-forge'
+const RSA = forge.pki.rsa
+
 let interval = null
 
 const useStyles = makeStyles({
@@ -57,7 +60,7 @@ const Register = props => {
 
   useEffect(_ => {
     props.openIndexDB()
-  }, [props])
+  }, [])
 
   useEffect(_ => {
     return _ => {
@@ -274,6 +277,23 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, { setUser, openIndexDB })(withRouter(withTheme(Register)))
+
+const mainContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '100%',
+  minHeight: 450,
+  backgroundColor: 'white'
+}
+
+const formStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  width: '80%',
+  maxWidth: 550
+}
 
 const RegisterButton = styled(Button)({
   height: 36,

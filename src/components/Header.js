@@ -18,10 +18,14 @@ import { setServerStatus } from '../actions/connectionActions'
 import { closeWebsocket } from '../actions/socketActions'
 import { clearData } from '../actions/channelActions'
 
+import axios from 'axios'
+
 import SidePanel from './messages/SidePanel'
 import CallView from './CallView'
 
 import {
+  FaServer,
+  FaBolt,
   FaComments,
   FaLock,
   FaFileAlt,
@@ -29,6 +33,8 @@ import {
   FaSignOutAlt,
   FaBars
 } from 'react-icons/fa'
+
+const interval = null
 
 const useStyles = makeStyles({
   list: {
