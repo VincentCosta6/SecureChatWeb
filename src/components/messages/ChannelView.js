@@ -148,7 +148,7 @@ const ChannelView = props => {
         if (!last) {
           time = new Date(e.Timestamp)
         } else if (new Date(last.Timestamp).getTime() <= new Date(e.Timestamp).getTime() - (3600 * 1000)) {
-          time = new Date(data.Timestamp)
+          time = new Date(e.Timestamp)
         }
 
         if (index > 0) {
