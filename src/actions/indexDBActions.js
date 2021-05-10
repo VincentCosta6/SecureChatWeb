@@ -65,7 +65,7 @@ export const openIndexDB = data => dispatch => {
 
       result = await dbQueryPromise(request)
 
-      if (result.target.result) { store.dispatch(changeTheme(result.target.result.theme)) }
+      if (result.target.result) { store.dispatch(changeTheme({ palette: result.target.result.theme }, false)) }
     }
   }
 

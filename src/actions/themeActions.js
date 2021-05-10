@@ -20,13 +20,17 @@ export const getThemes = _ => dispatch => {
     }) */
 }
 
-export const changeTheme = theme => dispatch => {
+export const changeTheme = (theme, save = true) => async dispatch => {
   const saveState = async _ => {
+    console.log(theme)
     const themeDataStore = store.getState().indexdb.db.transaction(['themes'], 'readwrite').objectStore('themes')
-    const request = themeDataStore.put({ username: localStorage.getItem('user'), theme })
+    const request = themeDataStore.put({ username: localStorage.getItem('user'), theme: theme.palette })
   }
 
-  saveState()
+  if (save)
+    await saveState()
+
+    console.log(theme)
 
   dispatch({
     type: CHANGE_THEME,

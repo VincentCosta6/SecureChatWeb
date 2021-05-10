@@ -12,8 +12,11 @@ const Theme = props => {
     props.changeTheme({
       palette: {
         primary: {
+          ...props.theme.currentTheme.palette.primary,
           main: hex
-        }
+        },
+        secondary: props.theme.currentTheme.palette.secondary,
+        type: props.theme.currentTheme.palette.type
       }
     })
   }
@@ -21,9 +24,12 @@ const Theme = props => {
   const handleSecondaryChange = ({ hex }) => {
     props.changeTheme({
       palette: {
+        primary: props.theme.currentTheme.palette.primary,
         secondary: {
+          ...props.theme.currentTheme.palette.secondary,
           main: hex
-        }
+        },
+        type: props.theme.currentTheme.palette.type
       }
     })
   }
@@ -63,8 +69,8 @@ const Theme = props => {
       <Divider />
 
       <div style={divStyle}>
-        <h3 style={titleStyle(contrastText)}>Toggle Dark Mode</h3>
-        <Switch value={props.theme.currentTheme.palette.type !== 'dark'} onChange={changeDarkMode} />
+        <h3 style={titleStyle(contrastText)}>Dark Mode</h3>
+        <Switch value={props.theme.currentTheme.palette.type !== 'dark' ? 'off' : 'on'} checked={props.theme.currentTheme.palette.type !== 'light'} onChange={changeDarkMode} />
       </div>
     </div>
   )

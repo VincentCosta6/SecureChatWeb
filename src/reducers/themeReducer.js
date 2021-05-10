@@ -8,8 +8,6 @@ const initialState = {
   currentTheme: defaultTheme
 }
 
-let timeout = null
-
 export default function (state = initialState, action) {
   switch (action.type) {
     case GET_THEMES:
@@ -17,15 +15,7 @@ export default function (state = initialState, action) {
     case CHANGE_THEME: {
       const newTheme = createMuiTheme(action.theme)
 
-      clearTimeout(timeout)
-
-      timeout = setTimeout(_ => {
-        /* storage.set("theme", newTheme, (err) => {
-                    console.error(err)
-                }) */
-      }, 1000)
-
-      return { ...state, currentTheme: newTheme }
+      return { ...state, currentTheme: { ...state.currentTheme, ...newTheme } }
     }
     default:
       return state

@@ -18,7 +18,7 @@ const Security = props => {
     setExporting(true)
     setError('')
 
-    /* storage.get("protectedKeys", (err, keys) => {
+    /*storage.get("protectedKeys", (err, keys) => {
             if(err) {
                 setSuccess(false)
                 setExporting(false)
@@ -61,14 +61,14 @@ const Security = props => {
                     setSuccess(true)
                 })
             })
-        }) */
+        })*/
   }
 
   return (
     <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
       <div style={divStyle}>
         <h2 style={titleStyle(contrastText)}>Private Key</h2>
-        <Button variant='contained' color='primary' onClick={handleExport}>
+        <Button variant='contained' color='primary' onClick={handleExport} disabled>
                     Export
           {exporting && <CircularProgress size={17} style={{ color: theme.palette.getContrastText(theme.palette.primary.main) }} />}
           {isSuccess && <FaCheck color='green' size={17} />}
