@@ -25,6 +25,7 @@ p {
     word-break: break-all;
     border-radius: 10px;
     padding: 10px;
+    transform-style: preserve-3d;
 }
 
 .message-mine p {
@@ -54,6 +55,7 @@ p.timestamp {
     background               : inherit;
     background-attachment    : fixed;
     border-bottom-left-radius: 15px;
+    transform: translateZ(-1px);
 }
 
 .message-mine.end:after {
@@ -64,7 +66,7 @@ p.timestamp {
     right                    : -10px;
     width                    : 10px;
     height                   : 20px;
-    background               : white;
+    background-color         : var(--background-default);
     border-bottom-left-radius: 10px;
 }
 
@@ -76,6 +78,7 @@ p.timestamp {
     word-break: break-all;
     border-radius: 10px;
     padding: 10px;
+    transform-style: preserve-3d;
 }
 
 .message-yours.end:before {
@@ -88,6 +91,7 @@ p.timestamp {
     width                     : 35px;
     background                : inherit;
     border-bottom-right-radius: 15px;
+    transform: translateZ(-1px);
 }
 
 .message-yours.end:after {
@@ -98,6 +102,6 @@ p.timestamp {
     left                      : -10px;
     width                     : 10px;
     height                    : 20px;
-    background                : white;
+    background-color          : var(--background-default);
     border-bottom-right-radius: 10px;
 }

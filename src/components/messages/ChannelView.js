@@ -17,7 +17,7 @@ import { encrypt } from '../../actions/channelActions'
 
 import { authReq } from '../../axios-auth'
 
-import Message from './Message'
+import Message, { TypingMessage } from './Message'
 
 import { FiPaperclip } from 'react-icons/fi'
 
@@ -44,12 +44,6 @@ const ChannelView = props => {
 
   const currentChannel = props.channels.channels[props.channels.activeChannel]
 
-  useEffect(() => {
-    const typers = Object.keys(currentChannel.typers).map(key => currentChannel.typers[key]).filter(typer => typer.WhoTypingID !== props.user._id)
-
-    setTypers(typers)
-  }, [currentChannel.typers])
-
   useEffect(_ => {
     lastSend = null
 
@@ -61,6 +55,19 @@ const ChannelView = props => {
   useEffect(_ => {
     document.getElementById('message-scroll-here').scrollTop = document.getElementById('message-scroll-here').scrollHeight
   }, [currentChannel.messages.length])
+
+  useEffect(() => {
+    const typers = Object.keys(currentChannel.typers).map(key => currentChannel.typers[key]).filter(typer => typer.WhoTypingID !== props.user._id)
+
+    setTypers(typers)
+  }, [props.channels.channels, props.channels.activeChannel, currentChannel, currentChannel.typers])
+
+  useEffect(() => {
+    let root = document.documentElement;
+
+    root.style.setProperty('--background-default', props.theme.currentTheme.palette.background.default);
+    root.style.setProperty('--background-paper', props.theme.currentTheme.palette.background.paper);
+  }, [props.theme])
 
   const sendMessage = async (content, type) => {
     if (content === '') {
@@ -226,7 +233,14 @@ const ChannelView = props => {
       </Menu>
       <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', overflowY: 'auto' }} id='message-scroll-here'>
         {_renderMessages()}
-        {typers.map(typer => <p key={typer.WhoTypingID}>{typer.WhoTypingUsername} is typing...</p>)}
+        {
+          typers.length > 0 && (
+            <TypingMessage
+              className="message-yours end"
+              theme={theme}
+            />
+          )
+        }
       </div>
       <Divider />
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', backgroundColor: theme.palette.background.default, marginTop: 5 }}>
@@ -259,7 +273,8 @@ const ChannelView = props => {
 const mapStateToProps = state => {
   return {
     user: state.user,
-    channels: state.channels
+    channels: state.channels,
+    theme: state.theme,
   }
 }
 
