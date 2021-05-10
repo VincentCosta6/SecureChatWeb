@@ -112,7 +112,7 @@ export const MessageContainer = () => {
 
   useEffect(_ => {
     dispatch(openIndexDB())
-  }, [])
+  }, [dispatch])
 
   useEffect(_ => {
     if (user.token && user.token.length > 10 && !websocket.websocket && indexdb.db) {
